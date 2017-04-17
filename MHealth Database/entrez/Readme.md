@@ -1,6 +1,8 @@
 ENTREZ PACKAGE README
+=====================
 
-===== BACKGROUND: =====
+BACKGROUND:
+-----------
 
 The Entrez Package define an API that allows Drupal sites to
 communicate with Entrez databases using E-utilities.
@@ -25,19 +27,21 @@ The Package also contains specialized modules for accessing specific
 databases. For example, the PubMed module defines functions for
 importing content from the PubMed database.
 
-===== COMPONENTS: =====
+COMPONENTS:
+-----------
 
 This module defines the following components:
 
-  * Drush Commands
-      * entrez-search
-        Executes a search query against an Entrez database and returns the result as an XML document.
-      * entrez-fetch
-        Retrieves the Entrez database records that have the given ids.
-      * entrez-links
-        Retrieves the links associated with the given Entrez database records.
+* Drush Commands
+  * entrez-search
+    Executes a search query against an Entrez database and returns the result as an XML document.
+  * entrez-fetch
+    Retrieves the Entrez database records that have the given ids.
+  * entrez-links
+    Retrieves the links associated with the given Entrez database records.
 
-===== REFERENCES: ===== 
+REFERENCES:
+-----------
 
 1.
 MEDLINE®/PubMed® Data Element (Field) Descriptions

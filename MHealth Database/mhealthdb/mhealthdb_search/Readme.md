@@ -1,4 +1,5 @@
 MHealth DB Readme: Search
+=========================
 
 The MHealth DB: Search module (mhealthdb_search) defines a set of hook
 functions that enable the Apache Solr search system (via the apachesolr
@@ -7,6 +8,7 @@ MHealth DB Advanced Search form. This form is exposed via the Advanced
 Search block (mhealthdb_search_advanced_search).
 
 Components:
+-----------
 
 The MHealth DB: Search module defines the following content types,
 blocks, views, user roles, Drush commands, etc.

@@ -7,7 +7,9 @@ This folder contains a collection of source code samples. I've included five pro
 Lucidity Demo
 -------------
 
-The first of these is the source code for the Lucidity Demo project which contains a simple website created using Lucidity. This project does not have any backend dependencies and can be viewed locally using Firefox or any other browser that allows you to load files locally. The modules for this project were developed using Literate Programming style and are best viewed on GitHub: https://github.com/ElucidSolutions/lucidity-demo.
+https://github.com/ElucidSolutions/lucidity-demo
+
+The first of these is the source code for the Lucidity Demo project which contains a simple website created using Lucidity. This project does not have any backend dependencies and can be viewed locally using Firefox or any other browser that allows you to load files locally. The modules for this project were developed using Literate Programming style and are best viewed on GitHub.
 
 Highlights:
 
@@ -42,6 +44,8 @@ Highlights
 Gist
 ----
 
+https://github.com/larryleeelucidsolutions/Gist
+
 Gist is a personal project that I created to parse RSS newsfeed summaries to produce semantic summaries in RDF. Written in Curry, the program uses context free grammars to parse short texts.
 
 Highlights:
@@ -50,6 +54,8 @@ Highlights:
 
 Kakuro
 ------
+
+https://github.com/larryleeelucidsolutions/Kakuro
 
 Kakuro is another personal project that I created. This project was created to solve Kakuro puzzles. The program is written in an imperative programming language (D version 1).
 

@@ -1,0 +1,10 @@
+name = Entrez
+description = "Defines an API for connecting to and querying Entrez databases."
+package = Entrez
+core = 7.x
+dependencies[] = date
+files[] = entrez.drush.inc
+files[] = entrez.field.inc
+files[] = entrez.inc
+files[] = entrez.module
+files[] = entrez.test

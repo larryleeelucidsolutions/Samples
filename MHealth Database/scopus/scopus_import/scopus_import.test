@@ -1,0 +1,137 @@
+<?php
+/**
+  @file
+  @brief Defines unit tests for the Scopus Import module.
+*/
+
+class ScopusImportTest extends DrupalWebTestCase {
+  public static function getInfo () {
+    return array (
+      'name'        => 'Scopus: Import',
+      'group'       => 'Scopus',
+      'description' => 'Executes unit tests for the Scopus Import module.'
+    );
+  }
+
+  function setUp () {
+    module_load_include ('inc', 'scopus');
+    module_load_include ('inc', 'scopus_import');
+    parent::setUp ();
+    module_enable (array ('scopus_import'));
+  }
+
+  /// Returns a set of import records for testing.
+  function getTestRecords () {
+    return array (
+      array (
+        'title'        => "A binary branch and bound algorithm to minimize maximum scheduling cost",
+        'abstract'     => "This paper examines a single machine scheduling problem of minimizing the maximum scheduling cost that is nondecreasing with job completion time. Job release dates and precedence constraints are considered. We assume that each job can be processed exactly once without preemption. This is a classical scheduling problem, and is specifically useful in the scheduling of medical treatments. We develop a simple branch and bound algorithm to solve the scheduling problem optimally. A binary branching technique is developed. We use a preemptive solution approach to locate a lower bound, and design a simple heuristic to find an upper bound. Our algorithm is easy to implement and finds optimal schedules in one CPU minute for almost all instances tested, with up to 1000 jobs. © 2013 Elsevier Ltd.",
+        'authors'      => array (
+          'Chandra C.',
+          'Liu Z.',
+          'He J.',
+          'Ruohonen T.'
+        ),
+        'year'           => '2014',
+        'source'         => 'Scopus',
+        'volume'         => '42',
+        'issue'          => '1',
+        'article_number' => '',
+        'page_start'     => '9',
+        'page_end'       => '15',
+        'page_count'     => '',
+        'cited_by'       => '',
+        'link'           => "http://www.scopus.com/inward/record.url?eid=2-s2.0-84875253266&partnerID=40&md5=6615e7439490399ee015020c507bf358",
+        'document_type'  => 'Article'
+    ));
+  }
+
+  /**
+    @brief Returns true iff the given text field has
+      a single value and that value equals the given
+      value.
+    @param $field (array) a text field.
+    @param $value (string) the field value.
+    @return (boolean) true iff the field value equals
+      the given value.
+  */
+  function check_text_field_value ($field, $value) {
+    return count ($field) == 1 &&
+           $field [0]['value'] == $value;
+  }
+
+  /** 
+    @brief Returns true iff the given field has a
+      single value and that value equals the given
+      value.
+    @param $field (array) a term reference field.
+    @param $value (string) the field value.
+    @return (boolean) true iff the field value
+      matches the given value.
+  */
+  function check_term_reference ($field, $value) {
+    if (count ($field) != 1) { return false; }
+
+    $term = taxonomy_term_load ($field [0]['tid']);
+
+    return $term->name == $value;
+  }
+
+  /**
+    @brief Returns true iff the given field has the
+      given values.
+    @param $field (array) a term reference field.
+    @param $values (array) a set of values.
+    @return (boolean) true iff the term reference
+      field values match the given values.
+  */
+  function check_term_references ($field, $values) {
+    foreach ($field as $i => $field_value) {
+      $term = taxonomy_term_load ($field_value ['tid']);
+      $this->pass ('field value: ' . $term->name . ' goal value: ' . $values [$i]);
+      if ($term->name != $values [$i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+    @brief Tests scopus_import_record.
+    @details The function is valid iff:
+      1. If none of the existing Scopus Article nodes
+         have the given record title, it creates a
+         new node that has the correct field values.
+         Otherwise, it replaces the field values in
+         the existing node with the given record
+         values.
+  */
+  function test_scopus_import_record () {
+    foreach ($this->getTestRecords () as $record) {
+      $this->assertTrue (scopus_import_record ($record), 'No errors detected while importing record (' . $record ['title'] . ')');
+
+      $nids = scopus_get_nodes_by_title ($record ['title']);
+      if (empty ($nids)) {
+        $this->fail ('The record was not imported (' . $record ['title'] . ').');
+        continue;
+      }
+      $this->pass ('A new node was created (' . $nids [0] . ').');     
+
+      $node = node_load ($nids [0]);
+
+      $this->assertEqual (count ($node->scopus_author ['und']), count ($record ['authors']), 'The node has the correct number of authors.');
+      $this->assertTrue ($this->check_term_references ($node->scopus_author ['und'], $record ['authors']), 'The node has the correct author names.');
+      $this->assertTrue ($this->check_term_reference ($node->scopus_year ['und'], $record ['year']), 'The node has the correct year.');
+      $this->assertTrue ($this->check_term_reference ($node->scopus_source ['und'], $record ['source']), 'The node has the correct source.');
+      $this->assertTrue ($this->check_text_field_value ($node->scopus_volume ['und'], $record ['volume']), 'The node has the correct volume.');
+      $this->assertTrue ($this->check_text_field_value ($node->scopus_issue ['und'], $record ['issue']), 'The node has the correct issue.');
+      $this->assertTrue ($this->check_text_field_value ($node->scopus_article_number ['und'], $record ['article_number']), 'The node has the correct article number.');
+      $this->assertTrue ($this->check_text_field_value ($node->scopus_page_start ['und'], $record ['page_start']), 'The node has the correct page start.');
+      $this->assertTrue ($this->check_text_field_value ($node->scopus_page_end ['und'], $record ['page_end']), 'The node has the correct page end.');
+      $this->assertTrue ($this->check_text_field_value ($node->scopus_page_count ['und'], $record ['page_count']), 'The node has the correct page count.');
+      $this->assertTrue ($this->check_text_field_value ($node->scopus_cited_by ['und'], $record ['cited_by']), 'The node has the correct cited by value.');
+      $this->assertTrue ($this->check_text_field_value ($node->scopus_link ['und'], $record ['link']), 'The node has the correct link.');
+      $this->assertTrue ($this->check_text_field_value ($node->scopus_document_type ['und'], $record ['document_type']), 'The node has the correct document type.');
+    }
+  }
+}

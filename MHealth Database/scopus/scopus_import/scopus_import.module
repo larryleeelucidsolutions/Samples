@@ -1,0 +1,7 @@
+<?php
+/**
+  @file
+  @brief The scopus_import.module file is just a
+    stub. The Scopus Import module defines an API
+    whose functions are defined in scopus.inc.
+*/

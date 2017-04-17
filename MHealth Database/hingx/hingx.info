@@ -1,0 +1,8 @@
+name = HingX
+description = "Allows remote searching across HingX."
+package = HingX
+core = 7.x
+files[] = hingx.drush.inc
+files[] = hingx.inc
+files[] = hingx.module
+files[] = hingx.test

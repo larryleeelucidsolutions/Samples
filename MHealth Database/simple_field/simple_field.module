@@ -1,0 +1,326 @@
+<?php
+/**
+  @file
+  @brief The Simple Field module defines a simple
+    API for creating common field types.
+*/
+
+/**
+  @brief Creates a textarea field.
+  @param $type (object) the content type that the field will be added to.
+  @param $name (string) the field name.
+  @param $label (string) the field label.
+  @param $cardinality (int) the default
+    cardinality. Default 
+    FIELD_CARDINALITY_UNLIMITED.
+*/
+function simple_field_create_textarea ($type, $name, $label, $cardinality = FIELD_CARDINALITY_UNLIMITED) {
+  $field    = field_info_field($name);
+  $instance = field_info_instance('node', $name, $type->type);
+  if (empty($field)) {
+    $field = array(
+      'field_name'   => $name,
+      'type'         => 'text_long',
+      'entity_types' => array('node'),
+      'cardinality'  => $cardinality
+    );  
+    $field = field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name'  => $name,
+      'entity_type' => 'node',
+      'bundle'      => $type->type,
+      'label'       => $label,
+      'widget'      => array('type' => 'text_textarea'),
+      'display'     => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type'  => 'text_default',
+        ),  
+        'teaser'    => array(
+          'label' => 'hidden',
+          'type'  => 'text_default',
+        ),  
+      ),  
+    );  
+    $instance = field_create_instance($instance);
+  }
+  return $instance;
+}
+
+/**
+  @brief Creates a text field.
+  @param $type (object) the content type that the field will be added to.
+  @param $name (string) the field name.
+  @param $label (string) the field label.
+  @param $cardinality (int) the default
+    cardinality. Default
+    FIELD_CARDINALITY_UNLIMITED.
+*/
+function simple_field_create_textfield ($type, $name, $label, $cardinality = FIELD_CARDINALITY_UNLIMITED) {
+  $field    = field_info_field($name);
+  $instance = field_info_instance('node', $name, $type->type);
+  if (empty($field)) {
+    $field = array(
+      'field_name'   => $name,
+      'type'         => 'text_long',
+      'entity_types' => array('node'),
+      'cardinality'  => $cardinality
+    );
+    $field = field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name'  => $name,
+      'entity_type' => 'node',
+      'bundle'      => $type->type,
+      'label'       => $label,
+      'widget'      => array('type' => 'text_textfield'),
+      'display'     => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type'  => 'text_default',
+        ),
+        'teaser'    => array(
+          'label' => 'hidden',
+          'type'  => 'text_default',
+        ),
+      ),
+    );
+    $instance = field_create_instance($instance);
+  }
+  return $instance;
+}
+
+/**
+  @brief Creates a term reference field.
+  @param $type (object) the content type.
+  @param $name (string) the field name.
+  @param $label (string) the field label.
+  @param $machineName (string) the vocabulary
+    machine name.
+  @param $cardinality (int) the default
+    cardinality. Default
+    FIELD_CARDINALITY_UNLIMITED.
+*/
+function simple_field_create_term_reference ($type, $name, $label, $machineName, $cardinality = FIELD_CARDINALITY_UNLIMITED) {
+  $field    = field_info_field ($name);
+  $instance = field_info_instance ('node', $name, $type->type);
+  if (empty ($field)) {
+    field_create_field (array (
+      'field_name'   => $name,
+      'type'         => 'taxonomy_term_reference',
+      'entity_types' => array ('node'),
+      'cardinality'  => $cardinality,
+      'settings'     => array (
+        'allowed_values' => array (
+          array ('vocabulary' => $machineName,
+                 'parent' => 0)
+        ),
+      )
+    ));
+  }
+  if (empty ($instance)) {
+    field_create_instance (array (
+      'field_name'  => $name,
+      'entity_type' => 'node',
+      'bundle'      => $type->type,
+      'label'       => $label,
+      'widget'      => array (
+        'type' => 'options_select',
+      ),
+      'settings'    => array (
+        'text_processing' => true
+      ),
+      'display'     => array (
+        'default' => array (
+          'label' => 'above',
+          'type'  => 'text',
+          'default_formatter' => 'text_plain'
+        ),
+        'teaser'    => array (
+          'label' => 'above',
+          'type'  => 'text',
+          'default_formatter' => 'text_plain'
+        )
+      )
+    ));
+  }
+}
+
+/**
+  @brief Creats an entity reference field.
+  @param $type (object) the content type.
+  @param $name (string) the field name.
+  @param $label (string) the field label.
+  @param $target_bundles (array) the target bundles.
+  @param $target_type (string) the target type.
+  @param $cardinality (int) the default
+    cardinality. Default
+    FIELD_CARDINALITY_UNLIMITED.
+*/
+function simple_field_create_entity_reference ($type, $name, $label, $target_bundles = array (), $target_type = 'node', $cardinality = FIELD_CARDINALITY_UNLIMITED) {
+  module_load_include ('module', 'entity_reference');
+  $field    = field_info_field ($name);
+  $instance = field_info_instance ('node', $name, $type->type);
+  if (empty ($field)) {
+    field_create_field (array (
+      'field_name'   => $name,
+      'type'         => 'entityreference',
+      'entity_types' => array ('node'),
+      'cardinality'  => $cardinality,
+      'settings'     => array (
+        'target_type'      => $target_type,
+        'handler_settings' => array (
+          'target_bundles' => $target_bundles,
+          'sort' => array ('type' => 'none')
+    ))));
+  }
+  if (empty ($instance)) {
+    field_create_instance (array (
+      'field_name'   => $name,
+      'entity_type'  => 'node',
+      'bundle'       => $type->type,
+      'label'        => $label,
+      'widget'       => array ('type' => 'entityreference_autocomplete'),
+      'display'      => array (
+        'default' => array (
+          'label' => 'Subject',
+          'type'  => 'entityreference_entity_view'
+      ))
+    ));
+  }
+}
+
+/**
+  @brief Creates a date field and adds it to the
+    content type.
+  @param $type (object) the content type.
+  @param $name (string) the field name.
+  @param $label (string) the field label.
+*/
+function simple_field_create_date_field ($type, $name, $label) {
+  $field    = field_info_field ($name);
+  $instance = field_info_instance ('node', $name, $type->type);
+  if (empty ($field)) {
+    field_create_field (array (
+      'field_name'   => $name,
+      'type'         => 'date',
+      'entity_types' => array ('node'),
+      'cardinality'  => 1
+    ));
+  }
+  if (empty ($instance)) {
+    field_create_instance (array (
+      'field_name'  => $name,
+      'entity_type' => 'node',
+      'bundle'      => $type->type,
+      'label'       => $label,
+      'widget'      => array (
+        'type' => 'date_select',
+      ),
+      'settings'    => array (
+        'text_processing' => true
+      ),
+      'display'     => array (
+        'default' => array (
+          'label' => 'above',
+          'type'  => 'date',
+          'default_formatter' => 'date_default',
+        ),
+        'teaser'    => array (
+          'label' => 'above',
+          'type'  => 'date',
+          'default_formatter' => 'date_default',
+        )
+      )
+    ));
+  }
+}
+
+/**
+  @brief Adds an entity id to an entity reference field.
+  @param $id (integer) the entity id.
+  @return (array) the field value.
+*/
+function simple_field_create_entity_reference_value ($id) {
+  return array ('target_id' => $id);
+}
+
+/**
+  @brief Returns a date field value.
+  @param $year (int) the year.
+  @param $month (int) the month.
+  @param $day (int) the day.
+  @return (array) the field value.
+*/
+function simple_field_create_date_field_value ($year, $month, $day) {
+  return array (
+    'value' => sprintf ('%04d-%02d-%02dT12:00:00', $year, $month, $day),
+    'date_type' => 'date'
+  );
+}
+
+/**
+  @brief Accepts a node and a field name and returns the field's values.
+  @param $node (node) the node.
+  @param $field_name (string) the field name.
+  @return (array) the field values.
+*/
+function simple_field_get_field_values ($node, $field_name) {
+  return $node && !empty ($node->{$field_name}) ?
+           $node->{$field_name}['und'] :
+           array ();
+}
+
+/**
+  @brief Accepts a node and a field name and returns the field's first value.
+  @param $node (node) the node.
+  @param $field_name (string) the field name.
+  @return (array) the first field value.
+*/
+function simple_field_get_field_value ($node, $field_name) {
+  $field_values = simple_field_get_field_values ($node, $field_name);
+  return $field_values && is_array ($field_values) && !empty ($field_values) ?
+           $field_values [0] :
+           null;
+}
+
+/**
+  @brief Accepts a node and an entity reference field name and returns its target ids.
+  @param $node (node) the node.
+  @param $field_name (string) the field name.
+  @return (array) the target ids.
+*/
+function simple_field_get_entity_reference_target_ids ($node, $field_name) {
+  $target_ids = array ();
+  foreach (simple_field_get_field_values ($node, $field_name) as $field_value) {
+    $target_ids [] = $field_value ['target_id'];
+  }
+  return $target_ids;
+}
+
+/**
+  @brief Accepts a node and an entity reference field name and returns its first target id.
+  @param $node (node) the node.
+  @param $field_name (string) the field name.
+  @return (int) the first target id.
+*/
+function simple_field_get_entity_reference_target_id ($node, $field_name) {
+  $target_ids = simple_field_get_entity_reference_target_ids ($node, $field_name);
+  return empty ($target_ids) ? null : $target_ids [0];
+}
+
+/**
+  @brief Accepts a node and an entity reference
+    field name and a target id and returns true iff
+    the target id is referenced by the given field.
+  @param $node (node) the node.
+  @param $field_name (string) the field name.
+  @param $target_id (int) the target id.
+  @return (boolean).
+*/
+function simple_field_has_entity_reference_target_id ($node, $field_name, $target_id) {
+  return in_array ($target_id, simple_field_get_entity_reference_target_ids ($node, $field_name));
+}

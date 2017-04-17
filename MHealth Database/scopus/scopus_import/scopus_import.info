@@ -1,0 +1,8 @@
+name = Scopus: Import
+description = Defines a base API that can be used to import articles from Scopus.
+package = Scopus
+core = 7.x
+dependencies[] = scopus
+files[] = scopus_import.inc
+files[] = scopus_import.module
+files[] = scopus_import.test

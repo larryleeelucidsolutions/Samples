@@ -1,0 +1,14 @@
+<?php
+/*
+  Defines the Section 106 Map module which
+  defines the Section 106 Case map.
+*/
+
+// Implements hook_theme ()
+function section_106_map_theme () {
+  return [
+    'section_106_map' => [
+      'variables' => []
+    ]
+  ];
+}

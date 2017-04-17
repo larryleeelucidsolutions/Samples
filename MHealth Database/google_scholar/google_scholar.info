@@ -1,0 +1,7 @@
+name = Google Scholar
+description = "Defines the core content types and shared functions for the Google Scholar package."
+package = GoogleScholar
+core = 7.x
+dependencies[] = simple_field
+files[] = google_scholar.install
+files[] = google_scholar.module

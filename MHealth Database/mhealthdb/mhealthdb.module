@@ -1,0 +1,898 @@
+<?php
+/**
+  @file
+  @brief The mhealthdb.module file is just a stub.
+    The MHealth DB module defines a common library
+    for the other modules in the MHealth DB
+    package.
+*/
+
+/**
+  @brief Accepts a title, crops it, and appends an ellipse.
+  @param $title (string) the title.
+  @return (string).
+*/
+function mhealthdb_crop_title ($title) {
+  return truncate_utf8 ($title, 200, true, true);
+}
+
+/**
+  @brief Accepts a title and returns its canonical form.
+  @param $title (string) the title.
+  @return (string) the canonicalized title.
+*/
+function mhealthdb_canonicalize ($string) {
+  return strtolower (preg_replace ('/[[:punct:]]/', '', $string));
+}
+
+/**
+  @brief Accepts a node and returns its node id.
+  @param $node (node) the node.
+  @return (int) the node id.
+*/
+function mhealthdb_node_get_nid ($node) {
+  return $node->nid;
+}
+
+/**
+  @brief Accepts a node and returns true iff it is published.
+  @param $node (node) the node.
+  @return (boolean).
+*/
+function mhealthdb_node_is_published ($node) {
+  return $node->status == NODE_PUBLISHED;
+}
+
+// ----- I. MHealth DB Vocabularies. -----
+
+/// Specifies the MHealthDB (TERG) taxonomy name.
+define ('mhealthdb_MTERG_VOCAB', 'mhealth_evidence_terg_taxonomy');
+
+/// Returns an array listing the MHealthDB vocabularies.
+function mhealthdb_vocabularies () {
+  return array (
+    mhealthdb_MTERG_VOCAB => array (
+      'name'         => 'mHealth Evidence (TERG) Taxonomy',
+      'machine_name' => mhealthdb_MTERG_VOCAB,
+      'description'  => 'Updated version of the taxonomy with additions and edits made by mTERG members.'
+  ));
+}
+
+/**
+  @brief Creates a new vocabulary.
+  @param $vocab (array) a vocabulary array.
+*/
+function mhealthdb_vocabulary_create ($vocab) {
+  if (!taxonomy_vocabulary_machine_name_load ($vocab ['machine_name'])) {
+    taxonomy_vocabulary_save ((object) $vocab);
+  }
+}
+
+/// Creates the MHealthDB vocabularies.
+function mhealthdb_vocabularies_create () {
+  foreach (mhealthdb_vocabularies () as $vocab) {
+    mhealthdb_vocabulary_create ($vocab);
+  }
+}
+
+/// Deletes the MHealthDB vocabularies.
+function mhealthdb_vocabularies_delete () {
+  foreach (array_keys (mhealthdb_vocabularies ()) as $machine_name) {
+    $vocab = taxonomy_vocabulary_machine_name_load ($machine_name);
+    taxonomy_vocabulary_delete ($vocab->vid);
+  }
+}
+
+// ----- II. MHealth DB Record Source Nodes -----
+
+/**
+  @brief Returns every Pubmed node.
+  @return (array) the nodes.
+*/
+function mhealthdb_pubmed_nodes_get () {
+  module_load_include ('inc', 'pubmed');
+  return array_map ('node_load', pubmed_get_nodes ());
+}
+
+/**
+  @brief Accepts a Pubmed node and returns its full title.
+  @param $pubmed_node (node) the Pubmed node.
+  @return (string) the title.
+*/
+function mhealthdb_pubmed_node_get_title ($pubmed_node) {
+  return $pubmed_node->pubmed_article_title ['und'][0]['value'];
+}
+
+/**
+  @brief Accepts a Pubmed node and returns its abstract.
+  @param $pubmed_node (node) the Pubmed node.
+  @return (string) the abstract.
+*/
+function mhealthdb_pubmed_node_get_abstract ($pubmed_node) {
+  return $pubmed_node->body ['und'][0]['value'];
+}
+
+/**
+  @brief Accepts a Pubmed node and returns its journal title.
+  @param $pubmed_node (node) the Pubmed node.
+  @return (string) the journal title.
+*/
+function mhealthdb_pubmed_node_get_journal_title ($pubmed_node) {
+  if (empty ($pubmed_node->pubmed_journal_title ['und'])) { return ''; }
+  $term = taxonomy_term_load ($pubmed_node->pubmed_journal_title ['und'][0]['tid']);
+  return $term->name;
+}
+
+/**
+  @brief Accepts a Pubmed node and returns its authors.
+  @param $pubmed_node (node) the Pubmed node.
+  @return (array) the author names.
+*/
+function mhealthdb_pubmed_node_get_authors ($pubmed_node) {
+  $author_names = array ();
+  foreach ($pubmed_node->pubmed_author ['und'] as $field_item) {
+    $term = taxonomy_term_load ($field_item ['tid']);
+    $author_names [] = $term->name;
+  }
+  return $author_names;
+}
+
+/**
+  @brief Returns every Google Scholar node.
+  @return (array) the nodes.
+*/
+function mhealthdb_google_scholar_nodes_get () {
+  return array_map ('node_load', google_scholar_get_records ());
+}
+
+/**
+  @brief Accepts a Google Scholar node and returns its full title.
+  @param $google_scholar_node (node) the Google Scholar node.
+  @return (string) the title.
+*/
+function mhealthdb_google_scholar_node_get_title ($google_scholar_node) {
+  return $google_scholar_node->google_scholar_record_title ['und'][0]['value'];
+}
+
+/**
+  @brief Accepts a Google Scholar node and returns its abstract.
+  @param $google_scholar_node (node) the Google Scholar node.
+  @return (string) the abstract.
+*/
+function mhealthdb_google_scholar_node_get_abstract ($google_scholar_node) {
+  return $google_scholar_node->body ['und'][0]['value'];
+}
+
+/**
+  @brief Accepts a Google Scholar node and returns its journal title.
+  @param $google_scholar_node (node) the Google Scholar node.
+  @return (string) the journal title.
+*/
+function mhealthdb_google_scholar_node_get_journal_title ($google_scholar_node) {
+  foreach ($google_scholar_node->google_scholar_record_journal ['und'] as $field_item) {
+    $term = taxonomy_term_load ($field_item ['tid']);
+    return $term->name;
+  }
+  return '';
+}
+
+/**
+  @brief Accepts a Pubmed node and returns its authors.
+  @param $pubmed_node (node) the Pubmed node.
+  @return (array) the author names.
+*/
+function mhealthdb_google_scholar_node_get_author ($google_scholar_node) {
+  $author_names = array ();
+  foreach ($google_scholar_node->google_scholar_record_author ['und'] as $field_item) {
+    $author_names [] = $field_item ['value'];
+  }
+  return $author_names;
+}
+
+/**
+  @brief Returns an array describing the source
+    types, their weights, and labels.
+  @return (array).
+  @note the source types array has the following structure:
+    array (
+      <source node type> => array (
+        'weight'                        => <source weight>,
+        'label'                         => <source label>,
+        'source_nodes_get'              => <function callback>,
+        'source_node_get_title'         => <function callback>,
+        'source_node_get_journal_title' => <function callback>,
+        'source_node_get_authors'       => <function callback>
+      ), ...).
+*/
+function mhealthdb_source_node_types () {
+  module_load_include ('inc', 'pubmed');
+  return array (
+    pubmed_TYPE                => array (
+      'weight'                        => 2,
+      'label'                         => 'PubMed',
+      'source_nodes_get'              => 'mhealthdb_pubmed_nodes_get',
+      'source_node_get_title'         => 'mhealthdb_pubmed_node_get_title',
+      'source_node_get_abstract'      => 'mhealthdb_pubmed_node_get_abstract',
+      'source_node_get_journal_title' => 'mhealthdb_pubmed_node_get_journal_title',
+      'source_node_get_authors'       => 'mhealthdb_pubmed_node_get_authors'
+    ),
+    google_scholar_RECORD_TYPE => array (
+      'weight'                        => 1,
+      'label'                         => 'Google Scholar',
+      'source_nodes_get'              => 'mhealthdb_google_scholar_nodes_get',
+      'source_node_get_title'         => 'mhealthdb_google_scholar_node_get_title',
+      'source_node_get_abstract'      => 'mhealthdb_google_scholar_node_get_abstract',
+      'source_node_get_journal_title' => 'mhealthdb_google_scholar_node_get_journal_title',
+      'source_node_get_authors'       => 'mhealthdb_google_scholar_node_get_authors'
+  ));
+}
+
+/**
+  @brief Accepts a source node and returns true iff
+    the source node type is a valid source node type.
+  @param $source_node (node) the source node.
+  @return (boolean).
+*/
+function mhealthdb_source_node_valid_type ($source_node) {
+  $source_node_types = mhealthdb_source_node_types ();
+  return array_key_exists ($source_node->type, $source_node_types);
+}
+
+/**
+  @brief Accepts a source node and returns its weight.
+  @param $source_node (node) the source node.
+  @return (int|null) the weight.
+*/
+function mhealthdb_source_node_get_weight ($source_node) {
+  $source_node_types = mhealthdb_source_node_types ();
+  return mhealthdb_source_node_valid_type ($source_node) ?
+           $source_node_types [$source_node->type]['weight'] : null;
+} 
+
+/**
+  @brief Accepts a source node and returns its source label.
+  @param $source_node (node) the source node.
+  @return (string|null) the source label.
+*/
+function mhealthdb_source_node_get_label ($source_node) {
+  $source_node_types = mhealthdb_source_node_types ();
+  return mhealthdb_source_node_valid_type ($source_node) ?
+           $source_node_types [$source_node->type]['label'] : null;
+}
+
+/**
+  @brief Accepts a source node and returns its full title.
+  @param $source_node (node) the source node.
+  @return (string|null) the full source title.
+*/
+function mhealthdb_source_node_get_title ($source_node) {
+  $source_node_types = mhealthdb_source_node_types ();
+  if (!mhealthdb_source_node_valid_type ($source_node)) {
+    return null;
+  }
+  return call_user_func ($source_node_types [$source_node->type]['source_node_get_title'], $source_node);
+}
+
+/**
+  @brief Returns all of the source nodes.
+  @return (array) the source nodes.
+*/
+function mhealthdb_source_nodes_get () {
+  $source_nodes = array ();
+  foreach (mhealthdb_source_node_types () as $source_node_type) {
+    $source_nodes = array_merge ($source_nodes,
+      call_user_func ($source_node_type ['source_nodes_get']));
+  }
+  return $source_nodes;
+}
+
+// ----- III. MHealth DB Record Sources -----
+
+/**
+  @brief Accepts a source node and returns an
+    equivalent source object.
+  @param $source_node (node) the source node.
+  @return (array|null) the source object.
+  @note Source objects are arrays that have the following structure:
+    array (
+      'weight' => <source weight>
+      'label'  => <source label>
+      'title'  => <source full title>
+      'node'   => <source node>
+    ).
+*/
+function mhealthdb_source_from_node ($source_node) {
+  return mhealthdb_source_node_valid_type ($source_node) ?
+    array (
+      'weight' => mhealthdb_source_node_get_weight ($source_node),
+      'label'  => mhealthdb_source_node_get_label  ($source_node),
+      'title'  => mhealthdb_source_node_get_title  ($source_node),
+      'node'   => $source_node) : null;
+}
+
+/**
+  @brief Accepts an array of source nodes and converts them to sources.
+  @param $source_nodes (array) the source nodes.
+  @return (array) the source objects.
+  @note If any of the source nodes are not valid
+    node types, this function will return null for
+    their corresponding source objects.
+*/
+function mhealthdb_sources_from_nodes ($source_nodes) {
+  return array_map ('mhealthdb_source_from_node', $source_nodes);
+}
+
+/**
+  @brief Accepts a source and returns its canonicalized title.
+  @param $source (array) the source.
+  @return (string) the canonical title.
+*/
+function mhealthdb_source_get_canonical_title ($source) {
+  return mhealthdb_canonicalize ($source ['title']);
+}
+
+/**
+  @brief Accepts a source and returns its abstract.
+  @param $source (array) the source.
+  @return (string) the abstract.
+*/
+function mhealthdb_source_get_abstract ($source) {
+  return call_user_func ($source ['source_node_get_abstract'], $source ['node']);
+}
+
+/**
+  @brief Accepts a source and returns its journal title.
+  @param $source (array) the source.
+  @return (string) the journal title.
+*/
+function mhealthdb_source_get_journal_title ($source) {
+  return call_user_func ($source ['source_node_get_journal_title'], $source ['node']);
+}
+
+/**
+  @brief Accepts a source and returns its authors.
+  @param $source (array) the source.
+  @return (array) the author names.
+*/
+function mhealthdb_source_get_authors ($source) {
+  return call_user_func ($source ['source_node_get_authors'], $source ['node']);
+}
+
+/**
+  @brief Accepts two sources, x and y, and returns
+    true iff x's weight is greater than y's.
+  @param $x (array) the first source object.
+  @param $y (array) the second source object.
+  @return (boolean).
+*/
+function mhealthdb_source_weight_greater_than ($x, $y) {
+  return $x ['weight'] < $y ['weight'];
+}
+
+/**
+  @brief Accepts an array of sources and returns a
+    version of the array that has been sorted by
+    decreasing weight.
+*/
+function mhealthdb_sources_sort_by_weight ($sources) {
+  usort ($sources, 'mhealthdb_source_weight_greater_than');
+  return $sources;
+}
+
+// ----- IV. MHealth DB Record Nodes -----
+
+/// Specifies the MHealthDB Record content type name.
+define ('mhealthdb_RECORD_TYPE', 'mhealthdb_record');
+
+/// Defines the MHealthDB Record content type.
+function mhealthdb_record_content_type () {
+  $t = get_t ();
+  return node_type_set_defaults (
+    array (
+      'type'        => mhealthdb_RECORD_TYPE,
+      'name'        => $t ('MHealth Database Record'),
+      'description' => $t ('MHealth database records.'),
+      'help'        => $t ('MHealth database records.'),
+      'has_title'   => true,
+      'base'        => 'node_content',
+      'custom'      => false,
+      'modified'    => true,
+      'locked'      => true,
+      'module'      => 'pubmed'
+  ));
+}
+
+/// Creates the MHealthDB Record content type.
+function mhealthdb_record_content_type_create () {
+  module_load_include ('inc', 'pubmed');
+
+  $type = mhealthdb_record_content_type ();
+  node_type_save ($type);
+
+  simple_field_create_textfield        ($type, 'mhealthdb_record_title', 'Full Title', 1);
+  simple_field_create_textfield        ($type, 'mhealthdb_record_canonical_title', 'Canonical Title', 1);
+  simple_field_create_term_reference   ($type, 'mhealthdb_record_mterg', 'mHealth Evidence (TERG) Taxonomy', array (mhealthdb_MTERG_VOCAB));
+  simple_field_create_entity_reference ($type, 'mhealthdb_record_sources', 'Sources', array (pubmed_TYPE, google_scholar_RECORD_TYPE));
+}
+
+/**
+  @brief Accepts a MHealthDB Record node and a
+    source record node id and returns true iff the
+    MHealthDB Record node references the source node.
+  @param $record_node (node) the MHealthDB Record node.
+  @param $source_nid (int) the source node id.
+  @return (boolean).
+*/
+function mhealthdb_record_node_has_source ($record_node, $source_nid) {
+  return simple_field_has_entity_reference_target_id ($record_node, 'mhealthdb_record_sources', $source_nid);
+}
+
+/**
+  @brief Returns the node ids of the sources
+    referenced by the given Record node.
+  @param $record_node (node) the MHealthDB Record
+    node.
+  @return (array) the source node ids.
+*/
+function mhealthdb_record_node_get_source_nids ($record_node) {
+  return simple_field_get_entity_reference_target_ids ($record_node, 'mhealthdb_record_sources');
+}
+
+/**
+  @brief Returns the source nodes associated with
+    the given Record node.
+  @param $record_node (node) the MHealthDB Record
+    node.
+  @return (array) the source nodes.
+*/
+function mhealthdb_record_node_get_source_nodes ($record_node) {
+  return array_map ('node_load', mhealthdb_record_node_get_source_nids ($record_node));
+}
+
+/**
+  @brief Returns true iff the given MHealthDB
+    Record does not reference any sources.
+  @param $record_node (node) the MHealthDB
+    Record node.
+  @return (boolean) true iff the record does not
+    have any sources.
+*/
+function mhealthdb_record_node_has_no_sources ($record_node) {
+  $source_nids = mhealthdb_record_node_get_source_nids ($record_node);
+  return empty ($source_nids);
+}
+
+/**
+  @brief Returns the published source nodes
+    referenced by the given MHealthDB Record node.
+  @param $record_node (node) the MHealthDB Record node.
+  @return (array) the source nodes.
+*/
+function mhealthdb_record_node_get_published_source_nodes ($record_node) {
+  return array_filter (mhealthdb_record_node_get_source_nodes ($record_node), 'mhealthdb_node_is_published');
+}
+
+/**
+  @brief Returns true iff the given MHealthDB
+    Record node does not have any published sources.
+  @param $record_node (node) the MHealthDB Record
+    node.
+  @return (boolean).
+*/
+function mhealthdb_record_node_has_no_published_source ($record_node) {
+  $source_nodes = mhealthdb_record_node_get_published_source_nodes ($record_node);
+  return empty ($source_nodes);
+}
+
+/**
+  @brief Returns the source nodes that are viewable
+    by the given user.
+  @param $record_node (node) the MHealthDB Record
+    node.
+  @param $user (user) the user that will be viewing
+    the source nodes. Defaults to the current user.
+  @return (array) the source nodes.
+*/
+function mhealthdb_record_node_get_viewable_source_nodes ($record_node, $user = null) {
+  $source_nodes = array ();
+  foreach (mhealthdb_record_node_get_source_nodes ($record_node) as $source_node) {
+    if (node_access ('view', $source_node, $user)) {
+      $source_nodes[] = $source_node;
+    }
+  }
+  return $source_nodes;
+}
+
+/**
+  @brief Accepts a MHealthDB Record node and
+    returns all of its sources sorted by
+    decreasing weight.
+  @param $record_node (node) the record node.
+  @return (array) the sources.
+*/
+function mhealthdb_record_node_get_sources ($record_node) {
+  return mhealthdb_sources_sort_by_weight (
+    mhealthdb_sources_from_nodes (
+      mhealthdb_record_node_get_source_nodes ($record_node)));
+}
+
+/**
+  @brief Accepts a MHealthDB Record node and
+    returns its published sources sorted by
+    decreasing weight.
+  @param $record_node (node) the record node.
+  @return (array) the sources.
+*/
+function mhealthdb_record_node_get_published_sources ($record_node) {
+  return mhealthdb_sources_sort_by_weight (
+    mhealthdb_sources_from_nodes (
+      mhealthdb_record_node_get_published_source_nodes ($record_node)));
+}
+
+/**
+  @brief Accepts a MHealthDB Record node and a user
+    account and returns its sources that can be
+    viewed by the given user sorted by weight.
+  @param $record_node (node) the record node.
+  @param $user (user) the user. Defaults to the current user.
+  @return (array) the sources.
+*/
+function mhealthdb_record_node_get_viewable_sources ($record_node, $user = null) {
+  return mhealthdb_sources_sort_by_weight (
+    mhealthdb_sources_from_nodes (
+      mhealthdb_record_node_get_viewable_source_nodes ($record_node, $user)));
+}
+
+/**
+  @brief Returns an EntityFieldQuery that will
+    return every MHealthDB Record node when
+    executed.
+  @return (EntityFieldQuery) the query.
+*/
+function mhealthdb_record_node_query_create () {
+  $query = new EntityFieldQuery ();
+  return $query->entityCondition ('entity_type', 'node')
+               ->entityCondition ('bundle', mhealthdb_RECORD_TYPE);
+}
+
+/**
+  @brief Accepts an EntityFieldQuery that will
+    select MHealthDB Record nodes, executes the
+    query, and returns the full result nodes.
+  @param $query (EntityFieldQuery) the query.
+  @return (array) the nodes.
+*/
+function mhealthdb_record_node_query_execute ($query) {
+  $nodes = array ();
+  $results = $query->execute ();
+  if (isset ($results ['node'])) {
+    foreach (array_keys ($results ['node']) as $nid) {
+      $nodes [] = node_load ($nid);
+    }
+  }
+  return $nodes;
+}
+
+/**
+  @brief Accepts an EntityFieldQuery that will
+    select MHealthDB Record nodes and adds a field
+    condition that filters out those records that
+    do not have the given title.
+  @param $query (EntityFieldQuery) the query.
+  @param $title (string) the resource title.
+  @return (EntityFieldQuery) the modified query.
+*/
+function mhealthdb_record_node_query_add_title_filter ($query, $title) {
+  $query->fieldCondition ('mhealthdb_record_title', 'value', $title, '=');
+  return $query;
+}
+
+/**
+  @brief Accepts an EntityFieldQuery that will
+    select MHealthDB Record nodes and adds a field
+    condition that filters out those records that
+    do not have the given canonical title.
+  @param $query (EntityFieldQuery) the query.
+  @param $canonical_title (string) the resource
+    canonical title.
+  @return (EntityFieldQuery) the modified query.
+*/
+function mhealthdb_record_node_query_add_canonical_title_filter ($query, $canonical_title) {
+  $query->fieldCondition ('mhealthdb_record_canonical_title', 'value', $canonical_title, '=');
+  return $query;
+}
+
+/**
+  @brief Accepts an EntityFieldQuery that will
+    select MHealthDB record nodes and adds a field
+    condition that filters out those records that
+    do not have a given source value.
+  @param $query (EntityFieldQuery) the query.
+  @param $source_nid (int) the source node id.
+  @return (EntityFieldQuery) the modified query.
+*/
+function mhealthdb_record_node_query_add_source_filter ($query, $source_nid) {
+  $query->fieldCondition ('mhealthdb_record_sources', 'target_id', $source_nid, '=');
+  return $query;
+}
+
+/**
+  @brief Returns an array listing the stub entities
+    associated with each MHealthDB Record.
+  @return (array) MHealthDB record nodes. 
+*/
+function mhealthdb_record_nodes_get () {
+  return mhealthdb_record_node_query_execute (mhealthdb_record_query_create ());
+}
+
+/**
+  @brief Returns an array listing the stub entities
+    of every MHealthDB Record that has the given
+    resource title.
+  @param $title (string) the resource title.
+  @return (array) the stub entities.
+*/
+function mhealthdb_record_nodes_get_by_title ($title) {
+  $query = mhealthdb_record_node_query_create ();
+  $query = mhealthdb_record_node_query_add_title_filter ($query, $title);
+  return mhealthdb_record_node_query_execute ($query);
+}
+
+/**
+  @brief Returns an array listing the stub entities
+    of every MHealthDB Record that has the given
+    canonical title.
+  @param $canonical_title (string) the canonical resource title.
+  @return (array) the stub entities.
+*/
+function mhealthdb_record_nodes_get_by_canonical_title ($canonical_title) {
+  $query = mhealthdb_record_node_query_create ();
+  $query = mhealthdb_record_node_query_add_canonical_title_filter ($query, $canonical_title);
+  return mhealthdb_record_node_query_execute ($query);
+}
+
+/**
+  @brief Returns an array listing the stub entities
+    of every MHealthDB Record that has the given
+    source.
+  @param $source_nid (int) the source node id.
+  @return (array) the record nodes.
+*/
+function mhealthdb_record_nodes_get_by_source_nid ($source_nid) {
+  $query        = mhealthdb_record_node_query_create ();
+  $query        = mhealthdb_record_node_query_add_source_filter ($query, $source_nid);
+  $record_nodes = mhealthdb_record_node_query_execute ($query); 
+  if (count ($record_nodes) > 1) {
+    watchdog (
+      'mhealthdb',
+      '[mhealthdb_get_record_nodes_by_source_nid] More than one MHealthDB record references the following source: <pre>@source_nid</pre>',
+      array (
+        '@source_nid' => $source_nid
+      ),
+      WATCHDOG_ERROR
+    );
+  }
+  return $record_nodes;
+}
+
+/// Deletes every MHealthDB Record.
+function mhealthdb_record_nodes_delete () {
+  foreach (mhealthdb_record_nodes_get () as $record_node) {
+    node_delete ($record_node->nid);
+  }
+}
+
+/// Deletes the MHealthDB Record type.
+function mhealthdb_record_content_type_delete () {
+  mhealthdb_record_nodes_delete ();
+  node_type_delete (mhealthdb_RECORD_TYPE);
+}
+
+/**
+  @brief Creates a MHealthDB Record node that
+    references the given source.
+  @param $source (array) the source object.
+  @return (node) the record node.
+*/
+function mhealthdb_record_node_from_source ($source) {
+  $record_node = new stdClass ();
+  $record_node->type = mhealthdb_RECORD_TYPE;
+  node_object_prepare ($record_node);
+  $record_node->title = mhealthdb_crop_title ($source ['title']);
+  $record_node->mhealthdb_record_title   ['und'][0]['value']         = $source ['title'];
+  $record_node->mhealthdb_record_canonical_title ['und'][0]['value'] = mhealthdb_source_get_canonical_title ($source);
+  $record_node->mhealthdb_record_sources ['und'][0]['target_id']     = $source ['node']->nid;
+  return $record_node;
+}
+
+/**
+  @brief Accepts an MHealthDB Record source and
+    updates all of the records that reference it.
+  @param $source (array) the source.
+*/
+function mhealthdb_record_nodes_update_using_source ($source) {
+  // I. Get those records that explicitly reference the source.
+  $record_nodes = mhealthdb_record_nodes_get_by_source_nid ($source ['node']->nid);
+
+  // II. Get those records that have the same canonical title.
+  $canonical_title = mhealthdb_source_get_canonical_title ($source);
+  foreach (mhealthdb_record_nodes_get_by_canonical_title ($canonical_title) as $record_node) {
+    // a. Create a link to the source if one does not already exist.
+    if (!mhealthdb_record_node_has_source ($record_node, $source ['node']->nid)) {
+      $record_node->mhealthdb_record_sources ['und'][] = array (
+        'target_id' => $source ['node']->nid
+      );
+    }
+
+    $record_nodes [] = $record_node;
+  }
+
+  // III. Update those records that reference the source.
+  foreach ($record_nodes as $record_node) {
+    $record_node->title = mhealthdb_crop_title ($source ['title']);
+    $record_node->mhealthdb_record_title ['und'][0]['value']           = $source ['title'];
+    $record_node->mhealthdb_record_canonical_title ['und'][0]['value'] = mhealthdb_source_get_canonical_title ($source);
+
+    // a. Unpublish those records that do not refer to any published sources.
+    if ($source ['node']->status == NODE_NOT_PUBLISHED) {
+      $published_source_nodes = array ();
+      foreach (mhealthdb_record_node_get_published_source_nodes ($record_node) as $published_source_node) {
+        if ($published_source_node->nid != $source ['node']->nid) {
+          $published_source_nodes [] = $published_source_node;
+        }
+      }
+      watchdog (
+        'mhealthdb',
+        '[mhealthdb_record_nodes_update_using_source] record: <pre>@record_node</pre> published sources: <pre>@sources</pre>',
+        array (
+          '@record_node' => print_r ($record_node, true),
+          '@sources'     => print_r ($published_source_nodes, true)
+      ));
+      if (empty ($published_source_nodes)) {
+        node_unpublish_action ($record_node);
+      }
+    }
+    watchdog (
+      'mhealthdb',
+      '[mhealthdb_record_nodes_update_using_source] source: <pre>@source</pre> record nodes: <pre>@record_nodes</pre>',
+      array (
+        '@source'      => print_r ($source, true),
+        '@record_node' => print_r ($record_nodes, true)
+    ));
+    node_save ($record_node);
+  }
+
+  // IV. Create a record if none of the currently existing records reference the source.
+  if (empty ($record_nodes)) {
+    node_save (mhealthdb_record_node_from_source ($source));
+  }
+}
+
+/**
+  @brief Accepts a source node and creates/updates
+    MHealthDB record nodes that reference them.
+  @param $source_node (node) the source node.
+*/
+function mhealthdb_record_nodes_update_using_source_node ($source_node) {
+  module_load_include ('inc', 'pubmed');
+  if (mhealthdb_source_node_valid_type ($source_node)) {
+    mhealthdb_record_nodes_update_using_source (
+      mhealthdb_source_from_node ($source_node));
+  }
+}
+
+/**
+  @brief Accepts a source node that is about to be
+    deleted, remove all references to the source
+    made by MHealthDB records and removes those
+    records that have no remaining sources.
+  @param $source_nid (int) the source node id.
+*/
+function mhealthdb_record_nodes_delete_references_to_source ($source_nid) {
+  foreach (mhealthdb_record_nodes_get_by_source_nid ($source_nid) as $record_node) {
+    $field_values = array ();
+    foreach ($record_node->mhealthdb_record_sources ['und'] as $field_value) {
+      if ($field_value ['target_id'] != $node->nid) {
+        $field_values [] = $field_value;
+      }
+    }
+
+    if (empty ($field_values)) {
+      node_delete ($record_node->nid);
+    } else {
+      $record_node->mhealthdb_record_sources ['und'] = $field_values;
+      node_save ($record_node);
+    }
+  }
+}
+
+/**
+  @brief Implements hook_node_presave ().
+  @details
+    Creates/Updates the MHealthDB Record nodes that
+    reference a given source node whenever a source
+    node is created/updated.
+*/
+function mhealthdb_node_insert ($node) {
+  mhealthdb_record_nodes_update_using_source_node ($node);
+}
+
+/**
+  @brief Implements hook_node_presave ().
+  @details
+    Creates/Updates the MHealthDB Record nodes that
+    reference a given source node whenever a source
+    node is created/updated.
+*/
+function mhealthdb_node_update ($node) {
+  mhealthdb_record_nodes_update_using_source_node ($node);
+}
+
+/**
+  @brief Implements hook_node_delete ().
+  @details
+    Removes references to sources that are being
+    deleted and removes those MHealthDB Record
+    nodes that only reference the given source
+    node.
+*/
+function mhealthdb_node_delete ($node) {
+  mhealthdb_record_nodes_delete_references_to_source ($node->nid);
+}
+
+/**
+  @brief Iterates over all of the sources and
+    creates/updates/removes MHealthDB record nodes
+    as needed to keep everything in sync.
+*/
+function mhealthdb_sync_records () {
+  module_load_include ('inc', 'pubmed');
+
+  array_map ('mhealthdb_record_nodes_update_using_source_node',
+    mhealthdb_source_nodes_get ());
+
+  array_map ('node_delete',
+    array_map ('mhealthdb_node_get_nid',
+      array_filter (mhealthdb_record_nodes_get (),
+        'mhealthdb_record_has_no_sources')));
+}
+
+/// Implements hook_apachesolr_index_document_build ().
+//function mhealthdb_apachesolr_index_document_build ($document, $entity, $entity_type) {
+function mhealthdb_apachesolr_index_document_build (ApacheSolrDocument $document, $entity, $entity_type, $env_id) {
+  module_load_include ('inc', 'pubmed');
+  if ($entity_type == 'node' && $entity->type == mhealthdb_RECORD_TYPE) {
+    $document->content = '<div>' . $entity->mhealthdb_record_title ['und'][0]['value'] . '</div>';
+
+    $sources = mhealthdb_record_node_get_published_sources ($entity);
+    $source_types = mhealthdb_source_node_types();
+    foreach ($sources as $source) {
+    $source = array_merge((array) $source, $source_types[$source['node']->type]);
+      $document->content .=
+        '<div>' . mhealthdb_source_get_abstract ($source) . '</div>' .
+        '<div>' . mhealthdb_source_get_journal_title ($source) . '</div>' .
+        '<div>' . implode ('; ', mhealthdb_source_get_authors ($source)) . '</div>';
+    }
+    watchdog (
+      'mhealthdb',
+      '[mhealthdb_apachesolr_index_document_build] document content: <pre>@content</pre>',
+      array (
+        '@content' => $document->content
+    ));
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function mhealthdb_menu() {
+  $items['admin/reports/mhealthdb'] = array(
+    'title' => 'mHealthdb content counts',
+    'description' => 'Reports content counts for the mHealthdb module.',
+    'page callback' => 'mhealthdb_reports_page',
+    'access arguments' => array('administer nodes'),
+    'file' => 'mhealthdb.admin.inc',
+  );
+
+  return $items;
+}

@@ -1,0 +1,11 @@
+# Defines the paths for pages defined by the
+# Section 106 Map module.
+
+# I. Section 106 Map Module Settings Route.
+section_106_map.settings:
+  path: '/admin/structure/section_106_map/settings'
+  defaults:
+    _form: '\Drupal\section_106_map\Section106MapSettingsForm'
+    _title: 'Section 106 Map Settings'
+  requirements:
+    _permission: 'administer site configuration'

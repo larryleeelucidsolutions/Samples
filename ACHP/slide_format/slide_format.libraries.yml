@@ -1,0 +1,13 @@
+slide_format_library:
+  version: 1.x
+  css:
+    theme:
+      css/style.css: {}
+  js:
+    js/slide_format.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.ui
+    - core/jquery.ui.draggable
+    - core/drupalSettings
+    - core/underscore

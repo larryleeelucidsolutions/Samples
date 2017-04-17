@@ -1,0 +1,22 @@
+section_106_map_library:
+  version: 1.x
+  css:
+    theme:
+      css/section_106_map.css: {}
+      js/toastr/toastr.css: {}
+      https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css: {type: external}
+      https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css: {type: external}
+      https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css: {type: external}
+  js:
+    js/clipboard.js/dist/clipboard.js: {}
+    js/lunr.js/lunr.js: {}
+    js/section_106_map.js: {}
+    js/toastr/toastr.js: {}
+    https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js: {type: external}
+    https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js: {type: external}
+  dependencies:
+    - core/jquery
+    - core/jquery.ui.effects.slide
+    - core/jquery.ui.effects.scale
+    - core/drupalSettings
+    - core/underscore

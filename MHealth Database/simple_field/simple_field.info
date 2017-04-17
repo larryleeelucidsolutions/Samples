@@ -1,0 +1,6 @@
+name = Simple Field
+description = "Defines a very simple API for creating some common field types."
+core = 7.x
+dependencies[] = date
+dependencies[] = entityreference
+files[] = simple_field.module

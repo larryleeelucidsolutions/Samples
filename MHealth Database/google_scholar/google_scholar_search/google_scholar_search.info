@@ -1,0 +1,8 @@
+name = Google Scholar Search
+description = "Defines an API for searching Google Scholar"
+package = GoogleScholar
+core = 7.x
+files[] = google_scholar_search.drush.inc
+files[] = google_scholar_search.inc
+files[] = google_scholar_search.module
+

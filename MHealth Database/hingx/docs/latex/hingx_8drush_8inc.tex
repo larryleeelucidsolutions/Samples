@@ -1,0 +1,50 @@
+\section{hingx.drush.inc File Reference}
+\label{hingx_8drush_8inc}\index{hingx.drush.inc@{hingx.drush.inc}}
+Defines the Drush commands for the Hing\-X module. 
+
+\subsection*{Functions}
+\begin{CompactItemize}
+\item 
+\bf{drush\_\-hingx\_\-search} (\$terms= '', \$num=100)
+\begin{CompactList}\small\item\em Executes a search query against the Hing\-X resource database. \item\end{CompactList}\item 
+\bf{drush\_\-hingx\_\-retrieve} (\$id)
+\begin{CompactList}\small\item\em Retrieves the Hing\-X resource that has the given id. \item\end{CompactList}\item 
+\bf{hingx\_\-drush\_\-command} ()\label{hingx_8drush_8inc_ba3e6c9181cc4099d1eed7b9783cd904}
+
+\begin{CompactList}\small\item\em Implements hook\_\-drush\_\-command. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsection{Detailed Description}
+Defines the Drush commands for the Hing\-X module. 
+
+
+
+\subsection{Function Documentation}
+\index{hingx.drush.inc@{hingx.drush.inc}!drush_hingx_retrieve@{drush\_\-hingx\_\-retrieve}}
+\index{drush_hingx_retrieve@{drush\_\-hingx\_\-retrieve}!hingx.drush.inc@{hingx.drush.inc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}drush\_\-hingx\_\-retrieve (\$ {\em id})}\label{hingx_8drush_8inc_85f4065e2ea9628e5630e3df38884928}
+
+
+Retrieves the Hing\-X resource that has the given id. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em \$id}](integer) the resource id. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:](string) the response. \end{Desc}
+\index{hingx.drush.inc@{hingx.drush.inc}!drush_hingx_search@{drush\_\-hingx\_\-search}}
+\index{drush_hingx_search@{drush\_\-hingx\_\-search}!hingx.drush.inc@{hingx.drush.inc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}drush\_\-hingx\_\-search (\$ {\em terms} = {\tt ''}, \$ {\em num} = {\tt 100})}\label{hingx_8drush_8inc_eb41cfcb23869e11c29362267ee47629}
+
+
+Executes a search query against the Hing\-X resource database. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em \$terms}](string) the search terms. \item[{\em \$num}](integer) the maximum number of search results. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:](string) \end{Desc}

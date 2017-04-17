@@ -1,0 +1,17 @@
+/*
+  This module defines the default styles for
+  the slide feature elements created by the
+  Slide Format module.
+*/
+/*
+  Accepts two arguments:
+
+  * $feature-height, a CSS dimension
+  * $feature-item-width, a CSS dimension
+
+  and applies the minimal styles needed to
+  render the target element as a slide format
+  feature element.
+*/
+.slide-format-target {
+  display: none; }

@@ -1,0 +1,7 @@
+<?php
+/**
+  @file
+  @brief The entrez.module file is just a stub. The
+    Entrez module defines an API whose functions
+    are defined in entrez.inc.
+*/

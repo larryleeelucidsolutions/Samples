@@ -1,0 +1,13 @@
+view_term_list_library:
+  version: 1.x
+  css: 
+    theme:
+      css/view_term_list.css: {}
+  js:
+    js/view_term_list.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.ui.effects.slide
+    - core/jquery.ui.effects.scale
+    - core/drupalSettings
+    - core/underscore

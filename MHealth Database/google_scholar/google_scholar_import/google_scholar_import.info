@@ -1,0 +1,7 @@
+name = Google Scholar Import
+description = "Defines an API that can be used to import records from Google Scholar."
+package = GoogleScholar
+core = 7.x
+dependencies[] = google_scholar
+dependencies[] = google_scholar_search
+files[] = google_scholar_import.module

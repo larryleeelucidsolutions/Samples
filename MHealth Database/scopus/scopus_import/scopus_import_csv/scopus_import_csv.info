@@ -1,0 +1,8 @@
+name = Scopus: CSV Import
+description = Provides a drush command and UI to import Scopus Articles from CSV files.
+package = Scopus
+core = 7.x
+dependencies[] = scopus_import
+files[] = scopus_import_csv.drush.inc
+files[] = scopus_import_csv.inc
+files[] = scopus_import_csv.module

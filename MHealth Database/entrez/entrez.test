@@ -1,0 +1,303 @@
+<?php
+/**
+  @file
+  @brief Defines the unit tests for the Entrez module.
+*/
+
+class EntrezTest extends DrupalWebTestCase {
+  public static function getInfo () {
+    return array (
+      'name'        => 'Entrez',
+      'group'       => 'Entrez',
+      'description' => 'Executes unit tests for the Entrez module.',
+    );
+  }
+
+  function setUp () {
+    module_load_include ('inc', 'entrez');
+    parent::setUp ();
+  }
+
+  /**
+    @brief tests _entrez_get.
+    @details the function is valid iff:
+      1. The function returns false on failure.
+      2. The function returns the HTTP Get response
+        on success.
+      3. The function sends the HTTP Get request to
+        the given URL.
+  */
+  function test__entrez_get () {
+    $msg = '[_entrez_get] ';
+
+    // I. test condition 1.
+    $this->assertFalse (_entrez_get ('http://afafeasxffebasbgageasxfas'), $msg . 'Returned false on failure.');
+
+    // II. test condition 2.
+    $this->assertEqual (strpos (_entrez_get ('http://tools.ietf.org/rfc/rfc1.txt'), 'NETWORK WORKING GROUP'), 0, $msg . 'Executed the HTTP Get request sucessfully.');
+  }
+
+  /**
+    @brief tests _entrez_search.
+    @details the function is valid iff:
+      1. Returns Entrez records matching the search terms.
+      2. Always returns up to $num records.
+      3. The result set begins at the $start index.
+      4. The results are from the $db database.
+      5. Returns false on failure.
+  */
+  function test__entrez_search () {
+    $msg = '[_entrez_search] ';
+
+    // I. test conditions 1 and 4.
+    $xml = _entrez_search ('23487872[PMID]', 'pubmed', 0, 10);
+    $this->assertTrue ($xml, $msg . 'Was able to query the PubMed database.');
+
+    $dom = DOMDocument::loadXML ($xml);
+    $this->assertTrue ($dom, $msg . 'The first response document is valid XML.');
+
+    $ids = array ();
+    foreach ($dom->getElementsByTagName ('Id') as $idElem) {
+      $ids [] = $idElem->nodeValue;
+    }
+    
+    $this->assertEqual (count ($ids), 1, $msg . 'The first query returned a single record.');
+    $this->assertEqual ($ids [0], '23487872', $msg . 'The first query returned the correct record.');
+
+    // II. test conditions 2, 3, and 4.
+    $xml = _entrez_search ('23487872,23487868,23487867,23487866[PMID]', 'pubmed', 1, 2);
+
+    $dom = DOMDocument::loadXML ($xml);
+    $ids = array ();
+    foreach ($dom->getElementsByTagName ('Id') as $idElem) {
+      $ids [] = $idElem->nodeValue;
+    }
+
+    $this->assertEqual (count ($ids), 2, $msg . 'The second query returned the correct number of records.');
+    $this->assertTrue (
+      $ids [0] === '23487868' &&
+      $ids [1] === '23487867',
+      $msg . 'The second query returned the correct records.');
+  }
+
+  /**
+    @brief tests _entrez_parse_search_response.
+    @details the function is valid iff:
+      1. Returns a list of the record ids contained
+         within the response.
+  */
+  function test__entrez_parse_search_response () {
+    $msg = '[_entrez_parse_search_response] ';
+
+    $xml = _entrez_search ('23487872,23487868,23487867,23487866[PMID]', 'pubmed');
+    if (!$xml) {
+      $this->fail ($msg . 'Was not able to query the PubMed database.');
+    }
+
+    $ids = _entrez_parse_search_response ($xml);
+    $this->assertEqual (count ($ids), 4, $msg . 'The parse function returned the correct number of records.');
+    $this->assertTrue (
+      $ids [0] === '23487872' &&
+      $ids [1] === '23487868' &&
+      $ids [2] === '23487867' &&
+      $ids [3] === '23487866',
+      $msg . 'The parse function returned the correct record ids.'
+    );
+  }
+
+  /**
+    @brief tests entrez_search.
+    @details the function is valid iff:
+      1. Returns Entrez record ids matching the search terms.
+      2. Always returns up to $num records.
+      3. The result set begins at the $start index.
+      4. The results are from the $db database.
+      5. Returns false on failure.
+  */
+  function test_entrez_search () {
+    $msg = '[entrez_search] ';
+
+    // I. test conditions 1, 2, 3, and 4.
+    $ids = entrez_search ('23487589,23487573,23487559,23487558[PMID]', 'pubmed', 1, 2);
+    $this->assertEqual (count ($ids), 2, $msg . 'The function returned the correct number of records.');
+    $this->assertTrue (
+      $ids [0] = '23487573' &&
+      $ids [1] = '23487559',
+      $msg . 'The function returned the correct record ids.'
+    );
+  }
+
+  /**
+    @brief tests _entrez_fetch.
+    @details the function is valid iff:
+      1. Returns the Entrez record that has the given id.
+  */
+  function test__entrez_fetch () {
+    $msg = '[_entrez_fetch] ';
+
+    $xml = _entrez_fetch (array ('23487573', '23487559', '23487558'), 'pubmed');
+    if (!$xml) {
+      $this->fail ($msg . 'Was not able to query the PubMed database.');
+    }
+
+    $dom = DOMDocument::loadXML ($xml);
+    if (!$dom) {
+      $this->fail ($msg . 'The response document was not a valid XML document.');
+    }
+
+    $ids = array ();
+    foreach ($dom->getElementsByTagName ('ArticleId') as $articleIdElem) {
+      if ($articleIdElem->getAttribute ('IdType') === 'pubmed') {
+        $ids [] = $articleIdElem->nodeValue;
+      }
+    }
+    $this->assertEqual (count ($ids), 3, $msg . 'The function returned the correct number of records.');
+    $this->assertTrue (
+      $ids [0] === '23487573' &&
+      $ids [1] === '23487559' &&
+      $ids [2] === '23487558',
+      $msg . 'The function returned the correct records.'
+    );
+  }
+
+  /**
+    @brief tests _entrez_getElementByName.
+    @details the function is valid iff:
+      1. Returns null iff none of the elements have
+         the given name.
+      2. Returns the first element that has the given
+         name.
+      3. The function searches for the element
+         recursively.
+  */
+  function test__entrez_getElementByName () {
+    $msg = '[_entrez_getElementByName] ';
+
+    $dom = new DOMDocument ();
+    $dom->loadXML ('<root><element><child/></element></root>');
+
+    $this->assertNull (_entrez_getElementByName ($dom, 'element0'), $msg . 'The function returned null for a non-existant element.');
+
+    $elem = _entrez_getElementByName ($dom, 'root');
+    $this->assertEqual ($elem->tagName, 'root', $msg . 'The function returned the root element.');
+
+    $elem = _entrez_getElementByName ($dom, 'child');
+    $this->assertEqual ($elem->tagName, 'child', $msg . 'The function returned the correct child element.');
+  }
+
+  /**
+    @brief tests _entrez_getNodeValueByName.
+    @details the function is valid iff:
+      1. Returns null iff none of the elements have
+         the given name.
+      2. Returns the node value of the first element
+         that has the given name.
+        2.a. The function returns the empty string
+             when the node value is empty.
+      3. The function searches for the element
+         recursively.
+  */
+  function test__entrez_getNodeValueByName () {
+    $msg = '[_entrez_getNodeValueByName] ';
+
+    $dom = new DOMDocument ();
+    $dom->loadXML ('<root><element><child0>This</child0><child1>That</child1><child2/></element></root>');
+
+    $this->assertNull (_entrez_getNodeValueByName ($dom, 'element0'), $msg . 'The function returned null for a non-existant element.');
+    $this->assertIdentical (_entrez_getNodeValueByName ($dom, 'child2'), '', $msg . 'The function returned the empty string for the child element that does not have a node value.');
+    $this->assertIdentical (_entrez_getNodeValueByName ($dom, 'child0'), 'This', $msg . 'The function returned the correct node value for child0.');
+    $this->assertIdentical (_entrez_getNodeValueByName ($dom, 'child1'), 'That', $msg . 'The function returned the correct node value for child1.');
+  }
+
+  /**
+    @brief tests _entrez_parse_pubmed_record.
+    @details the function is valid iff:
+      1. Returns a record that has the correct id,
+         title, abstract, etc.
+  */
+  function test__entrez_parse_pubmed_record () {
+    $msg = '[_entrez_parse_pubmed_record] ';
+
+    $xml = _entrez_fetch (array ('23487573'), 'pubmed');
+    if (!$xml) {
+      $this->fail ($msg . 'Was not able to query the PubMed database.');
+    }
+
+    $dom = DOMDocument::loadXML ($xml);
+    if (!$dom) {
+      $this->fail ($msg . 'The response document was not a valid XML document.');
+    }
+
+    $articleElems = array ();
+    foreach ($dom->getElementsByTagName ('PubmedArticle') as $elem) {
+      $articleElems [] = $elem; 
+    }
+
+    if (count ($articleElems) !== 1) {
+      $this->fail ($msg . 'The response document contained the wrong number of records.');
+    }
+
+    $record = _entrez_parse_pubmed_record ($articleElems [0]);
+
+    $this->assertEqual ($record ['id'], '23487573', $msg . 'The record has the correct id.');
+    $this->assertEqual (strpos ($record ['title'], $msg . 'Regional factors associated with participation'), 0, $msg . 'The record has the correct title.');
+    $this->assertEqual (strpos ($record ['abstract'], $msg .'High participation rates are important'), 0, $msg . 'The record has the correct abstract.');
+  }
+
+  /**
+    @brief tests _entrez_parse_pubmed_fetch_response.
+    @details the function is valid iff:
+      1. Returns the correct number of records.
+      2. Each record has the correct id, title,
+         abstract, etc.
+  */
+  function test__entrez_parse_pubmed_fetch_response () {
+    $msg = '[_entrez_parse_pubmed_fetch_response] ';
+
+    $xml = _entrez_fetch (array ('23487573', '23487559', '12654674'), 'pubmed');
+    if (!$xml) {
+      $this->fail ($msg . 'Was not able to query the PubMed database.');
+    }
+
+    $dom = DOMDocument::loadXML ($xml);
+    if (!$dom) {
+      $this->fail ($msg . 'The response document was not a valid XML document.');
+    }
+
+    $records = _entrez_parse_pubmed_fetch_response ($dom);
+
+    $this->assertEqual (count ($records), 3, $msg . 'The function returned the correct number of records.');
+    $this->assertEqual ($records [0]['id'], '23487573', $msg . 'The first record has the correct id.');
+    $this->assertEqual (strpos ($records [0]['title'], 'Regional factors associated with participation'), 0, $msg . 'The first record has the correct title.');
+    $this->assertEqual (strpos ($records [0]['abstract'], 'High participation rates are important'), 0, $msg . 'The record has the correct abstract.');
+    $this->assertEqual ($records [1]['id'], '23487559', $msg . 'The second record has the correct id.');
+    $this->assertEqual (strpos ($records [1]['title'], 'Social motives for drinking in students'), 0, $msg . 'The second record has the correct title.');
+    $this->assertEqual (strpos ($records [1]['abstract'], 'High heavy drinking prevalence persists in students.'), 0, $msg . 'The second record has the correct abstract.');
+    $this->assertEqual ($records [2]['id'], '12654674', $msg . 'The third record has the correct id.');
+    $this->assertEqual (strpos ($records [2]['title'], 'Epidemiology of rifampin ADP-ribosyltransferase (arr-2)'), 0, $msg . 'The third record has the correct title.');
+    $this->assertEqual (strpos ($records [2]['abstract'], 'We characterized two new gene cassettes in an Acinetobacter'), 0, $msg . 'The third record has the correct abstract.');
+    $this->assertEqual (count ($records [2]['terms']), 11, $msg . 'The third record includes the correct number of MeSh terms.');
+    $this->assertEqual ($records [2]['terms'][0]['descriptor'], 'ADP Ribose Transferases', $msg . 'The descriptor of the first MeSh term in the third record is correct.');
+    $this->assertEqual ($records [2]['terms'][0]['qualifiers'][0], 'genetics', $msg . 'The qualifier of the first MeSh term in the third record is correct.'); 
+  }
+
+  /**
+    @brief tests entrez_fetch.
+    @details the function is valid iff:
+      1. Returns the correct number of records.
+      2. Each record has the correct fields.
+      3. Returns records from the PubMed database.
+  */
+  function test_entrez_fetch () {
+    $msg = '[entrez_fetch] ';
+
+    $records = entrez_fetch (array ('23487573', '23487559'), 'pubmed');
+    $this->assertEqual (count ($records), 2, $msg . 'The function returned the correct number of records.');
+    $this->assertEqual ($records [0]['id'], '23487573', $msg . 'The first record has the correct id.');
+    $this->assertEqual (strpos ($records [0]['title'], $msg . 'Regional factors associated with participation'), 0, $msg . 'The first record has the correct title.');
+    $this->assertEqual (strpos ($records [0]['abstract'], $msg .'High participation rates are important'), 0, $msg . 'The record has the correct abstract.');
+    $this->assertEqual ($records [1]['id'], '23487559', $msg . 'The second record has the correct id.');
+    $this->assertEqual (strpos ($records [1]['title'], $msg . 'Social motives for drinking in students'), 0, $msg . 'The second record has the correct title.');
+    $this->assertEqual (strpos ($records [1]['abstract'], $msg . 'High heavy drinking prevalence persists in students.'), 0, $msg . 'The second record has the correct abstract.');
+  }
+}

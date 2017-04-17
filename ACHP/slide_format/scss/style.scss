@@ -1,0 +1,73 @@
+/*
+  This module defines the default styles for
+  the slide feature elements created by the
+  Slide Format module.
+*/
+
+// Represents the default slide feature height.
+$slide-format-feature-height-default: 75px;
+
+// Represents the default slide feature item width.
+$slide-format-feature-item-width-default: 150px;
+
+/*
+  Accepts two arguments:
+
+  * $feature-height, a CSS dimension
+  * $feature-item-width, a CSS dimension
+
+  and applies the minimal styles needed to
+  render the target element as a slide format
+  feature element.
+*/
+@mixin slide-format-feature(
+  $feature-height: null,
+  $feature-item-width: null
+) {
+  height: if($feature-height, $feature-height, $slide-format-feature-height-default);
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+
+  .slide-format-feature-slide-container {
+    height: 100%;
+    position: relative;
+
+    .slide-format-feature-focus {
+      height: 100%;
+      position: absolute;
+      top: 0;
+    }
+    .slide-format-feature-slide {
+      height: 100%;
+      position: absolute;
+
+      .slide-format-feature-item {
+        float: left;
+        height: 100%;
+        position: relative;
+        width: if($feature-item-width, $feature-item-width, $slide-format-feature-item-width-default);
+      }
+      &:not(.ui-draggable-disabled) {
+        cursor: pointer;
+      }
+    }
+  }
+  .slide-format-feature-slide-button {
+    cursor: pointer;
+    display: none;
+    height: 100%;
+    position: absolute;
+    top: 0;
+  }
+  .slide-format-feature-left-slide-button {
+    left: 0;
+  }
+  .slide-format-feature-right-slide-button {
+    right: 0;
+  }
+}
+
+.slide-format-target {
+  display: none;
+}

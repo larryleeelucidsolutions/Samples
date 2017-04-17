@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="50px" height="67px" viewBox="0 0 50 67" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.8.3 (29802) - http://www.bohemiancoding.com/sketch -->
+    <title>map-marker-individual copy 5</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="map-marker-individual-copy-5">
+            <path d="M25.1471939,66.4038086 C25.1471939,66.4038086 48.6083097,39.2075331 48.6083097,25.2579516 C48.6083097,11.3083701 37.7269689,0 24.3041548,0 C10.8813408,0 0,11.3083701 0,25.2579516 C0,39.2075331 25.1471939,66.4038086 25.1471939,66.4038086 Z" id="Front-Marker" fill="#E62A10"></path>
+            <path d="M22.7777778,37 L22.7777778,34.7777778 L18.7888889,34.7777778 L23.7888889,29.7777778 L22.2222222,28.2111111 L17.2222222,33.2111111 L17.2222222,29.2222222 L15,29.2222222 L15,37 L22.7777778,37 L22.7777778,37 Z M27.7777778,25.7888889 L32.7777778,20.7888889 L32.7777778,24.7777778 L35,24.7777778 L35,17 L27.2222222,17 L27.2222222,19.2222222 L31.2111111,19.2222222 L26.2111111,24.2222222 L27.7777778,25.7888889 L27.7777778,25.7888889 Z" id="expand" fill="#FFFFFF"></path>
+        </g>
+    </g>
+</svg>

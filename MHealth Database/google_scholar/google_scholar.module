@@ -1,0 +1,109 @@
+<?php
+/**
+  @file
+  @brief Defines the Google Scholar Record content type.
+*/
+
+/// Defines the Google Scholar Record content type name.
+define ('google_scholar_RECORD_TYPE', 'google_scholar_record');
+
+/// Defines the Google Scholar Record type.
+function google_scholar_record_type () {
+  $t = get_t ();
+  return node_type_set_defaults (
+    array (
+      'type'        => google_scholar_RECORD_TYPE,
+      'name'        => $t ('Google Scholar Record'),
+      'description' => $t ('Google Scholar records.'),
+      'help'        => $t ('Google Scholar records.'),
+      'has_title'   => true,
+      'base'        => 'node_content',
+      'custom'      => false,
+      'modified'    => true,
+      'locked'      => true,
+      'module'      => 'google_scholar'
+  ));
+}
+
+/// Creates the Google Scholar Record content type.
+function google_scholar_create_record_type () {
+  module_load_include ('field.inc', 'entrez');
+
+  $type = google_scholar_record_type ();
+  node_type_save ($type);
+
+  node_add_body_field ($type);
+  simple_field_create_textfield ($type, 'google_scholar_record_title', 'Title', 1);
+  simple_field_create_textfield ($type, 'google_scholar_record_url', 'URL', 1);
+  simple_field_create_textfield ($type, 'google_scholar_record_author', 'Author');
+  simple_field_create_textfield ($type, 'google_scholar_record_journal', 'Journal', 1);
+  simple_field_create_textarea  ($type, 'google_scholar_record_snippet', 'Snippet', 1);
+}
+
+/**
+  @brief Returns the node id of every Google Scholar Record node.
+  @return (array) the node ids.
+*/
+function google_scholar_get_records () {
+  $records = db_select   ('{node}', 'tbl')
+             ->fields    ('tbl', array ('nid'))
+             ->condition ('type', google_scholar_RECORD_TYPE)
+             ->execute   ();
+
+  $nids = array ();
+  foreach ($records as $record) {
+    $nids [] = $record->nid;
+  }
+  return $nids;
+}
+
+/**
+  @brief Returns the node id of every Google Scholar Record that has the given title.
+  @return (array) the node ids.
+*/
+function google_scholar_get_records_by_title ($title) {
+  $query = new EntityFieldQuery ();
+  $result = $query->entityCondition ('entity_type', 'node')
+                  ->entityCondition ('bundle', google_scholar_RECORD_TYPE)
+                  ->fieldCondition  ('google_scholar_record_title', 'value', $title, '=')
+                  ->execute ();
+
+  $nids = array ();
+  if (isset ($result ['node'])) {
+    $nids = array_keys ($result ['node']); 
+  }
+  return $nids;
+}
+
+/// Deletes every Google Scholar Record node.
+function google_scholar_delete_records () {
+  foreach (google_scholar_get_records () as $nid) {
+    node_delete ($nid);
+  }
+}
+
+/// Deletes the Google Scholar Record content type.
+function google_scholar_delete_record_type () {
+  google_scholar_delete_records ();
+  node_type_delete (google_scholar_RECORD_TYPE);
+}
+
+/// Implements hook_permission ().
+function google_scholar_permission () {
+  return array (
+    'administer google scholar' => array (
+      'title' => t ('Administer Google Scholar settings.')
+  ));
+}
+
+/// Implements hook_menu ().
+function google_scholar_menu () {
+  return array (
+    'admin/config/google_scholar_import' => array (
+      'title'            => 'Google Scholar Settings',
+      'description'      => 'The Google Scholar settings.',
+      'position'         => 'right',
+      'page callback'    => 'system_admin_menu_block_page',
+      'access arguments' => array ('administer google scholar')
+  ));
+}

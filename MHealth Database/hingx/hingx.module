@@ -1,0 +1,68 @@
+<?php
+/**
+  @file
+  @brief Defines the HingX search handler.
+*/
+
+/// Implements hook_search_info ().
+function hingx_search_info () {
+  return array (
+    'title' => 'HingX',
+    'path'  => 'hingx'
+  );
+}
+
+/// Implements hook_search_execute ().
+function hingx_search_execute ($keys = null, $conditions = null) {
+  module_load_include ('inc', 'hingx');
+
+  $results = array ();
+  $ids = hingx_search ($keys, 10);
+
+  foreach ($ids as $id) {
+    // retrieve resource.
+    $resource = hingx_retrieve ($id);
+    if (!$resource) {
+      watchdog ('hingx', '[hingx_search_execute] Error: An error occured while trying to retrieve a resource (@id) from HingX in a search query.', array ('@id' => $id), WATCHDOG_ERROR); 
+      continue;
+    }
+
+    // parse resource object.
+    $result = array (
+      'type' => 'hingx_resource'
+    );
+    foreach ($resource->Metadata as $field) {
+      switch ($field->FieldName) {
+        case 'Title':
+          $result ['title'] = $field->Value;
+          break;
+        case 'Abstract':
+          $result ['snippet'] = search_excerpt ($keys, $field->Value);
+          break;
+        case 'Resource Location':
+          $result ['link'] = $field->Value;
+          break;
+        default:
+          break;
+      }
+    }
+
+    // validate result.
+    if (!isset ($result ['title'])) {
+      watchdog ('hingx', '[hingx_search_execute] The HingX resource @id did not include a title field.', array ('@id' => $id), WATCHDOG_WARNING); 
+      continue;
+    }
+    if (!isset ($result ['snippet'])) {
+      watchdog ('hingx', '[hingx_search_execute] The HingX resource @id did not include a snippet field.', array ('@id' => $id), WATCHDOG_WARNING); 
+      continue;
+    }
+    if (!isset ($result ['link'])) {
+      watchdog ('hingx', '[hingx_search_execute] The HingX resource @id did not include a snippet field.', array ('@id' => $id), WATCHDOG_WARNING); 
+      continue;
+    }
+
+    $results[] = $result;
+  }
+
+  return $results;
+}

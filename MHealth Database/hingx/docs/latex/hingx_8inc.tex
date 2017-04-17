@@ -1,0 +1,100 @@
+\section{hingx.inc File Reference}
+\label{hingx_8inc}\index{hingx.inc@{hingx.inc}}
+Defines the functions that comprise the Hing\-X API. 
+
+\subsection*{Enumerations}
+\begin{CompactItemize}
+\item 
+enum \bf{hingx\_\-URL} 
+\begin{CompactList}\small\item\em The Hing\-X root URL. \item\end{CompactList}\end{CompactItemize}
+\subsection*{Functions}
+\begin{CompactItemize}
+\item 
+\bf{\_\-hingx\_\-get} (\$url)
+\begin{CompactList}\small\item\em Sends an HTTP Get request to the given URL. \item\end{CompactList}\item 
+\bf{\_\-hingx\_\-search} (\$terms= '', \$page=1, \$num=100)
+\begin{CompactList}\small\item\em Executes a search query against the Hing\-X resource database and returns a JSON string representing the response. \item\end{CompactList}\item 
+\bf{hingx\_\-search} (\$terms= '', \$num=100)
+\begin{CompactList}\small\item\em Executes a search query against the Hing\-X resource database and returns the results. \item\end{CompactList}\item 
+\bf{\_\-hingx\_\-retrieve} (\$id)
+\begin{CompactList}\small\item\em Retrieves the Hing\-X resource that has the given id and returns a JSON string representing the response. \item\end{CompactList}\item 
+\bf{hingx\_\-retrieve} (\$id)
+\begin{CompactList}\small\item\em Retrieves the Hing\-X resource that has the given id. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsection{Detailed Description}
+Defines the functions that comprise the Hing\-X API. 
+
+
+
+\subsection{Function Documentation}
+\index{hingx.inc@{hingx.inc}!_hingx_get@{\_\-hingx\_\-get}}
+\index{_hingx_get@{\_\-hingx\_\-get}!hingx.inc@{hingx.inc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}\_\-hingx\_\-get (\$ {\em url})}\label{hingx_8inc_f9bd3e9ed8f73c0aaab2ebaf8efac3a4}
+
+
+Sends an HTTP Get request to the given URL. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em \$url}](string) the URL. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:](string) the response or false on failure. \end{Desc}
+\index{hingx.inc@{hingx.inc}!_hingx_retrieve@{\_\-hingx\_\-retrieve}}
+\index{_hingx_retrieve@{\_\-hingx\_\-retrieve}!hingx.inc@{hingx.inc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}\_\-hingx\_\-retrieve (\$ {\em id})}\label{hingx_8inc_591a519a7be6fe09d0ad26360b44cac9}
+
+
+Retrieves the Hing\-X resource that has the given id and returns a JSON string representing the response. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em \$id}](integer) the resource id. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:](string) the response or false on failure. \end{Desc}
+\index{hingx.inc@{hingx.inc}!_hingx_search@{\_\-hingx\_\-search}}
+\index{_hingx_search@{\_\-hingx\_\-search}!hingx.inc@{hingx.inc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}\_\-hingx\_\-search (\$ {\em terms} = {\tt ''}, \$ {\em page} = {\tt 1}, \$ {\em num} = {\tt 100})}\label{hingx_8inc_57e483cf1c1d3b9295db8843dc451a7a}
+
+
+Executes a search query against the Hing\-X resource database and returns a JSON string representing the response. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em \$terms}](string) the search terms. \item[{\em \$page}](integer) the page index. \item[{\em \$num}](integer) the maximum number of search results per page. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:](string) the response or false on failure. \end{Desc}
+\index{hingx.inc@{hingx.inc}!hingx_retrieve@{hingx\_\-retrieve}}
+\index{hingx_retrieve@{hingx\_\-retrieve}!hingx.inc@{hingx.inc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}hingx\_\-retrieve (\$ {\em id})}\label{hingx_8inc_331f72c6e4b7c4797c87aacba5777469}
+
+
+Retrieves the Hing\-X resource that has the given id. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em \$id}](integer) the resource id. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:](object) the resource or null on failure. \end{Desc}
+\index{hingx.inc@{hingx.inc}!hingx_search@{hingx\_\-search}}
+\index{hingx_search@{hingx\_\-search}!hingx.inc@{hingx.inc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}hingx\_\-search (\$ {\em terms} = {\tt ''}, \$ {\em num} = {\tt 100})}\label{hingx_8inc_28aaa6768ad18317af6563303987d9fe}
+
+
+Executes a search query against the Hing\-X resource database and returns the results. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em \$terms}](string) the search terms. \item[{\em \$num}](integer) the maximum number of search results. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:](string) the resource ids or null on failure. \end{Desc}

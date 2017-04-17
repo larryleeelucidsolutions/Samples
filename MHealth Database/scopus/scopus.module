@@ -1,0 +1,7 @@
+<?php
+/**
+  @file
+  @brief The scopus.module file is just a stub. The
+    Scopus module creates the Scopus Article
+    content type.
+*/

@@ -1,0 +1,416 @@
+/* ADVANCED SEARCH block style */
+
+.advancedsearchpage {
+  background-color: #374050;
+  padding-bottom: 20px;
+}
+
+.advancedsearchpage #content-inner h2 {
+  color: white;
+}
+
+.advancedsearchpage h1, .page-search-site h1.page-title {
+  display: none;
+}
+
+#mhealthdb_search_form {
+  margin-top: 5px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#mhealthdb_search_form .fieldset-wrapper {
+  float:right;
+  width: 80%;
+}
+
+#mhealthdb_search_form .form-wrapper {
+  float:left;
+  width: 94%;
+  display: block;
+  padding: 0px;
+  margin: 0px;
+}
+
+/* left group operator button css */
+
+#mhealthdb_search_form .mhealthdb_search_group_operator_button .form-type-select select {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+
+#mhealthdb_search_form .form-type-select select {
+  color:#FFFFFF;
+  background: transparent url(images/select_list_background.png) 0px no-repeat;
+  background-position: -9px 0px;
+  /*width: 68px;*/
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  border: none;
+}
+
+#mhealthdb_search_form fieldset .form-type-select select {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
+/* css for first edit text field aka "mhealthdb_search_first_term_field" */
+
+#mhealthdb_search_form .mhealthdb_search_first_term_field .form-type-textfield input {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+#mhealthdb_search_form .mhealthdb_search_first_term_field .form-type-textfield {
+  width: 87%;
+}
+
+#mhealthdb_search_form .fieldset-wrapper .mhealthdb_search_first_term_field .form-type-textfield {
+  margin-left: 0;
+}
+
+#mhealthdb_search_form .form-type-textfield input {
+  display: block;
+  width: 100%;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+#mhealthdb_search_form .fieldset-wrapper > div:last-child input {
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+#mhealthdb_search_form .form-type-textfield label{
+  display: none;
+}
+
+#mhealthdb_search_form .form-type-select {
+  float:left;
+}
+
+#mhealthdb_search_form .fieldset-wrapper .form-type-textfield {
+  float: left;
+  width: 75%;
+  margin-left: 56px;
+}
+
+#mhealthdb_search_form legend {
+  /*width: 15%;*/
+  display: block;
+  float: left;
+  color: #FFFFFF; 
+  font-weight: 700;
+  font-size: 12px;
+}
+
+#mhealthdb_search_form legend fieldset-legend {
+  display: block; 
+}
+
+#mhealthdb_search_form .mhealthdb_search_add_field_button .form-submit:hover {
+  display: block;
+  text-decoration: none;
+  float: left;
+  text-indent: -9999px;
+  background: transparent url(images/add_keyword_on.png) 3px no-repeat;
+  box-shadow: transparent 0 0px 0 0 inset;
+  border-radius: 0px;
+}
+
+#mhealthdb_search_form .mhealthdb_search_add_field_button .form-submit {
+  /*width: 10px important;*/
+  display: block;
+  text-decoration: none;
+  float: left;
+  text-indent: -9999px;
+  background: transparent url(images/add_keyword_off.png) 3px no-repeat;
+  box-shadow: transparent 0 0px 0 0 inset;
+}
+
+#mhealthdb_search_form #edit-submit-reset-buttons {
+/*  width: 145px; */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#mhealthdb_search_form #edit-submit {
+  border-radius: 35px;
+  width: 100px;
+  height: 35px;
+  margin-left: 10px;
+}
+
+#mhealthdb_search_form #edit-reset {
+  border-radius: 35px;
+  width: 100px;
+  height: 35px;
+}
+
+#mhealthdb_search_form #edit-submit {
+  border-radius: 35px;
+}
+
+#mhealthdb_search_form edit-submit {
+  float:none;
+}
+
+#mhealthdb_search_form div.form-item select {
+  background-color: #999999;
+}
+
+#mhealthdb_search_form .fieldset-wrapper {
+  display: inline;
+}
+
+#mhealthdb_search_form #year_field {
+  padding-bottom: 10px;
+}
+
+#mhealthdb_search_form #year_field .fieldset-wrapper {
+  width: 80%;
+}
+
+#mhealthdb_search_form #year_field .fieldset-wrapper .form-type-textfield {
+  width: 50%;
+  margin-left: 0px;
+}
+
+#mhealthdb_search_form .fieldset-wrapper #from_year {
+  width:41.5%;
+  padding-right: 5px;
+  border-radius: 35px;
+}
+
+#mhealthdb_search_form #year_field label {
+  display: inline;
+  color: white;
+}
+
+#mhealthdb_search_form .fieldset-wrapper #to_year {
+  width:41.5%;
+}
+
+#mhealthdb_search_form .fieldset-wrapper #to_year {
+  border-radiuis: 35px!important;
+}
+
+#mhealthdb_search_form .fieldset-wrapper .form-item-year-to-field {
+  margin-left: 3%;
+}
+
+#mhealthdb_search_form #year_field .fieldset-wrapper .form-type-textfield {
+  display: inline;
+  float: none;
+}
+
+#mhealthdb_search_form #year_field .fieldset-wrapper .form-type-textfield label {
+  width: 10%;
+}
+
+#mhealthdb_search_form #year_field .fieldset-wrapper .form-type-textfield input {
+  display: inline;
+  margin-right: 14%;
+  width: 29%;
+}
+
+#mhealthdb_search_form .form-item-document-id-field input {
+  border-radius: 35px!important;
+}
+
+#mhealthdb_search_form #document_id_field .fieldset-wrapper .form-type-textfield {
+  margin-left: 0px;
+  width: 85%;
+}
+
+#mhealthdb_search_form .fieldset-wrapper .form-item-document-id-field {
+  margin-left: 0px;
+  width: 87%;
+}
+
+#mhealthdb_search_form .mhealthdb_search_reset_button {
+  float:left;
+}
+
+@media screen and (max-width: 1280px) {
+  #mhealthdb_search_form .fieldset-wrapper .form-type-textfield {
+    width: 70%;
+  }
+
+  #mhealthdb_search_form #year_field .fieldset-wrapper .form-type-textfield input {
+    margin-right: 9%;
+  }
+
+  #mhealthdb_search_form #document_id_field .fieldset-wrapper .form-type-textfield {
+    width: 80%;
+  }
+
+  .keyword-guide {
+    margin-right: 8px!important;     
+  }
+
+  .navigation-right {
+    margin-right: -18px!important;     
+  }
+
+}
+
+@media screen and (max-width: 1120px) {
+  #mhealthdb_search_form .fieldset-wrapper .form-type-textfield {
+    width: 65%;
+  }
+
+  #mhealthdb_search_form .form-wrapper {
+    width: 90%;
+  }
+
+  #mhealthdb_search_form .form-type-textfield input {
+    width: 100%;
+  }
+
+  #mhealthdb_search_form #year_field .fieldset-wrapper .form-type-textfield input {
+    margin-right: 4%;
+  }
+
+  #mhealthdb_search_form #document_id_field .fieldset-wrapper .form-type-textfield {
+    width: 78%;
+  }
+
+  .keyword-guide {
+    margin-right: -32px!important;     
+  }
+
+  .navigation-right {
+    margin-right: -58px!important;     
+  }
+
+}
+
+@media screen and (max-width: 1024px) {
+  #mhealthdb_search_form .fieldset-wrapper .form-type-textfield {
+    width: 65%;
+  }
+
+  #mhealthdb_search_form #document_id_field .fieldset-wrapper .form-type-textfield {
+    width: 76%;
+  }
+}
+
+@media screen and (max-width: 960px) {
+  #mhealthdb_search_form .fieldset-wrapper .form-type-textfield {
+    width: 60%;
+  }
+
+  #mhealthdb_search_form .form-wrapper {
+    width: 90%;
+  }
+
+  #mhealthdb_search_form .form-type-textfield input {
+    width: 100%;
+  }
+  
+  #mhealthdb_search_form .fieldset-wrapper .form-type-textfield {
+    display: block;
+    float: left;
+    width: 50%;
+  }
+
+  #mhealthdb_search_form #year_field .fieldset-wrapper .form-type-textfield input {
+    display: inline;
+    width: 25%;
+  }
+
+  #mhealthdb_search_form #document_id_field .fieldset-wrapper .form-type-textfield {
+    width: 67%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  #mhealthdb_search_form .fieldset-wrapper .form-type-textfield {
+    width: 65%;
+  }
+
+  #mhealthdb_search_form #document_id_field .fieldset-wrapper .form-type-textfield {
+    width: 78%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  #mhealthdb_search_form .fieldset-wrapper .form-type-textfield {
+    width: 55%;
+  }
+
+  #mhealthdb_search_form #document_id_field .fieldset-wrapper .form-type-textfield {
+    width: 73%;
+  }
+  
+  .navigation-right {
+    margin-right: -75px!important;
+  }
+
+}
+
+@media screen and (max-width: 480px) {
+  #mhealthdb_search_form .fieldset-wrapper .form-type-textfield {
+    width: 29%;
+  }
+
+  .advancedsearchpage #content-inner {
+    padding: 2% !important;
+  }
+
+  #mhealthdb_search_form .fieldset-wrapper {
+    width: 65%;
+  }
+
+  #mhealthdb_search_form .form-wrapper {
+    width: 85%;
+  }
+
+  #mhealthdb_search_form .form-type-textfield input {
+    width: 100%;
+  }
+  
+  #mhealthdb_search_form #document_id_field .fieldset-wrapper .form-type-textfield {
+    width: 60%;
+  }
+
+  .navigation-right {
+    float: none!important;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  #mhealthdb_search_form .fieldset-wrapper .form-type-textfield {
+    width: 10%;
+  }
+  .advancedsearchpage #content-inner {
+    padding: 2% !important;
+  }
+
+  #mhealthdb_search_form .fieldset-wrapper {
+    width: 65%;
+  }
+
+  #mhealthdb_search_form .form-wrapper {
+    width: 85%;
+  }
+
+  #mhealthdb_search_form .form-type-textfield input {
+    width: 100%;
+  }
+  
+  #mhealthdb_search_form #document_id_field .fieldset-wrapper .form-type-textfield {
+    width: 65%;
+  }
+}
+
+/* END Advanced Search block style */

@@ -1,0 +1,258 @@
+<?php
+
+/// The default import start index.
+define ('google_scholar_import_START', 0);
+
+/// The default import batch size.
+define ('google_scholar_import_NUM', 10);
+
+/// The default import terms.
+define ('google_scholar_import_TERMS', 'google scholar');
+
+/// The default import enabled/disabled status.
+define ('google_scholar_import_ENABLED', true);
+
+/**
+  @brief Accepts a Google Scholar search result and
+    saves the result as a Google Scholar Record node.
+  @param $result (array) the search result.
+*/
+function _google_scholar_import_save_result ($result) {
+  // I. Create a new Google Scholar Record node, or retrieve an existing one.
+  $nids = google_scholar_get_records_by_title ($result ['title']);
+  if (empty ($nids)) {
+    watchdog ('google_scholar_import', '[_google_scholar_import_save_result] creating a new record node.');
+    $node = new stdClass ();
+    $node->type = google_scholar_RECORD_TYPE;
+    node_object_prepare ($node);
+    $node->status = 0;
+  } else {
+    watchdog ('google_scholar_import', '[_google_scholar_import_save_result] updating an existing record node.');
+    $node = node_load (array_shift ($nids));
+  }
+
+  // II. Set the title field.
+  $num = 200; // The title field is stored in a varchar (255) database column.
+  if ($num < strlen ($result ['title'])) {
+    $n = strpos ($result ['title'], ' ', $num);
+    $node->title = substr ($result ['title'], 0, $n ? $n : $num) . '...';
+  } else {
+    $node->title = $result ['title'];
+  }
+  $node->google_scholar_record_title ['und'][0] = array (
+    'value'  => $result ['title'],
+    'format' => 'plain_text'
+  );
+
+  // III. Set the Author field.
+  $node->google_scholar_record_author ['und'] = array ();
+  foreach ($result ['authors'] as $author) {
+    $node->google_scholar_record_author ['und'][] = array (
+      'value'  => $author,
+      'format' => 'plain_text'
+    );
+  }
+
+  // IV. Set the Journal field.
+  $node->google_scholar_record_journal ['und'][0] = array (
+    'value'  => $result ['journal'],
+    'format' => 'plain_text'
+  );
+
+  // V. Set the URL field.
+  $node->google_scholar_record_url ['und'][0] = array (
+    'value'  => $result ['url'],
+    'format' => 'plain_text'
+  );
+
+  /// VI. Set the Snippet field.
+  $node->body ['und'][0] = array (
+    'value'  => $result ['snippet'],
+    'format' => 'plain_text'
+  );
+  $node->google_scholar_record_snippet ['und'][0] = array (
+    'value'  => $result ['snippet'],
+    'format' => 'plain_text'
+  );
+  node_save ($node);
+  watchdog (
+    'google_scholar_import',
+    '[_google_scholar_import_save_result] node: <pre>@node</pre>',
+    array (
+      '@node' => print_r ($node, true)
+  ));
+}
+
+/**
+  @brief Accepts a set of Google Scholar search
+    results and saves them as Google Scholar Record
+    nodes.
+  @param $results (array) the search results.
+*/
+function _google_scholar_import_save_results ($results) {
+  foreach ((array) $results as $result) {
+    _google_scholar_import_save_result ($result);
+  }
+}
+
+/// Returns the default search terms.
+function _google_scholar_import_get_terms () {
+  return variable_get ('google_scholar_import_terms', '');
+}
+
+/// Returns the search start date.
+function _google_scholar_import_get_start () {
+  return variable_get ('google_scholar_import_start', 0);
+}
+
+/// Returns the default number of search results.
+function _google_scholar_import_get_num () {
+  return variable_get ('google_scholar_import_num', 10);
+}
+
+/// Returns the enabled flag.
+function _google_scholar_import_get_enabled () {
+  return variable_get ('google_scholar_import_enabled', true);
+}
+
+/**
+  @brief Updates the default search terms.
+  @param $terms (string) the search terms.
+*/
+function _google_scholar_import_set_terms ($terms = google_scholar_import_TERMS) {
+  variable_set ('google_scholar_import_terms', $terms);
+}
+
+/**
+  @brief Sets the default start.
+  @param $start (int) the start.
+*/
+function _google_scholar_import_set_start ($start = google_scholar_import_START) {
+  variable_set ('google_scholar_import_start', $start);
+}
+
+/**
+  @brief Set the default number of search results.
+  @param $num (int) the number of search results.
+*/
+function _google_scholar_import_set_num ($num = google_scholar_import_NUM) {
+  variable_set ('google_scholar_import_num', $num);
+}
+
+/**
+  @brief Set the enabled flag.
+  @param $enabled (boolean).
+*/
+function _google_scholar_import_set_enabled ($enabled = google_scholar_import_ENABLED) {
+  variable_set ('google_scholar_import_enabled', $enabled);
+}
+
+/**
+  @brief Imports a set of search results.
+  @param $terms (string) the search terms.
+  @param $start (int) the result offset.
+  @param $num (int) the number of results requested.
+*/
+function google_scholar_import ($terms, $start = 0, $num = 10) {
+  module_load_include ('inc', 'google_scholar_search');
+  $results = array ();
+  foreach (google_scholar_search ($terms, $start, $num) as $result) {
+    // a. Ignore those records that have incomplete titles (ellipses).
+    if (preg_match ('/\xe2\x80\xa6/', $result ['title'])) {
+      watchdog (
+        'google_scholar',
+        '[_google_scholar_import] omitting record with incomplete title: <pre>@result</pre>',
+        array (
+          '@result' => print_r ($result, true)
+      ));
+      continue;
+    }
+    $results [] = $result;
+  }
+  watchdog (
+    'google_scholar',
+    '[_google_scholar_import] start: @start num: @num results: <pre>@results</pre>',
+    array (
+      '@start'   => $start,
+      '@num'     => $num,
+      '@results' => print_r ($results, true)
+  ));
+  _google_scholar_import_save_results ($results);
+  return $results;
+} 
+
+/**
+  @brief Implements hook_cron ().
+  @detail Imports records from Google Scholar in batches.
+*/
+function google_scholar_cron () {
+  if (_google_scholar_import_get_enabled ()) {
+    $start = _google_scholar_import_get_start ();
+    $num   = _google_scholar_import_get_num   ();
+    $terms = _google_scholar_import_get_terms ();
+    $results = google_scholar_import ($terms, $start, $num);
+    if (empty ($results)) {
+      _google_scholar_import_set_start (0);
+    } else {
+      _google_scholar_import_set_start ($start + $num);
+    }
+  }
+}
+
+/// Implements hook_permission ().
+function google_scholar_import_permission () {
+  return array (
+    'administer google scholar import' => array (
+      'title' => t ('Administer Google Scholar import settings.')
+  ));
+}
+
+/// Implements hook_menu ().
+function google_scholar_import_menu () {
+  return array (
+    'admin/config/google_scholar_import/settings' => array (
+      'title'            => 'Google Scholar Import Settings',
+      'description'      => 'The Google Scholar Import settings page.',
+      'page callback'    => 'drupal_get_form',
+      'page arguments'   => array ('google_scholar_import_admin_form'),
+      'access arguments' => array ('administer google scholar import'),
+      'type'             => MENU_NORMAL_ITEM
+  ));
+}
+
+/// Implements hook_form ().
+function google_scholar_import_admin_form () {
+  $form = array (
+    'enabled' => array(
+      '#type'          => 'checkbox',
+      '#title'         => t ('Enable/Disable'),
+      '#default_value' => _google_scholar_import_get_enabled (),
+      '#description'   => t ('Enables/Disables the Google Search imports.')
+    ),
+    'terms' => array (
+      '#type'          => 'textfield',
+      '#title'         => t ('Query String'),
+      '#default_value' => _google_scholar_import_get_terms (),
+      '#description'   => t ('Sets the query string used to retrieve records from Google Scholar.'),
+      '#maxlength'     => 1000,
+      '#required'      => true,
+      '#size'          => 150
+    ),
+    '#submit' => array ('google_scholar_import_admin_form_submit')
+  );
+  return system_settings_form($form);
+}
+
+/// Implements hook_form_submit ().
+function google_scholar_import_admin_form_submit ($form, $form_state) {
+  watchdog (
+    'google_scholar_import',
+    '[google_scholar_import_admin_form_submit] form state: <pre>@form_state</pre>',
+    array (
+      '@form_state' => print_r ($form_state, true)
+  ));
+  _google_scholar_import_set_enabled ($form_state ['values']['enabled']);
+  _google_scholar_import_set_terms   ($form_state ['values']['terms']);
+  _google_scholar_import_set_start   ();
+}
+

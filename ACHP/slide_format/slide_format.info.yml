@@ -1,0 +1,5 @@
+name: Slide Format
+description: Uses JS to display elements that have been tagged with the 'slide-format-target' class as slideable elements.
+package: Elucid Solutions
+type: module
+core: 8.x

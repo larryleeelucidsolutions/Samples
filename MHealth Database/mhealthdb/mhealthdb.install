@@ -1,0 +1,46 @@
+<?php
+/**
+  @file
+  @brief Creates the MHealthDB Record content type.
+*/
+
+/**
+  @brief Implements hook_install ().
+  @details Creates the MHealthDB Record content type.
+*/
+function mhealthdb_install () {
+  watchdog (
+    'mhealthdb',
+    '[mhealthdb_record_install]'
+  );
+  mhealthdb_vocabularies_create ();
+  mhealthdb_record_content_type_create ();
+  // Turn commenting off
+  variable_set('comment_mhealthdb_record', '1');
+  drupal_set_message ('Created the MHealthDB Record content type.');
+}
+
+/**
+  @brief Implements hook_uninstall ().
+  @details Deletes the MHealthDB Record content type.
+*/
+function mhealthdb_uninstall () {
+  watchdog (
+    'mhealthdb',
+    '[mhealthdb_record_uninstall]'
+  );
+  module_load_include ('module', 'mhealthdb');
+  mhealthdb_record_content_type_delete ();
+  mhealthdb_vocabularies_delete ();
+  drupal_set_message ('Deleted the MHealthDB Record content type.');
+}
+
+/**
+ * Create the mhealthdb_record content type and vocabulary.
+ */
+function mhealthdb_update_7001 () {
+  mhealthdb_vocabularies_create ();
+  mhealthdb_record_content_type_create();
+  // Turn commenting off
+  variable_set('comment_mhealthdb_record', '1');
+}

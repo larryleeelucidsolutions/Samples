@@ -1,0 +1,44 @@
+<?php
+/**
+  @file
+  @brief Defines the install and uninstall hook
+    functions. These functions create and delete
+    the Scopus Article content type and associated
+    vocabularies.
+*/
+
+/**
+  @brief Implements hook_install ().
+  @details
+    Creates the Scopus vocabularies and the Scopus
+    Article content type.
+*/
+function scopus_install () {
+  module_load_include ('inc', 'scopus');
+
+  scopus_create_vocabularies ();
+  drupal_set_message ('Created the Scopus vocabularies.');
+
+  scopus_create_content_type ();
+  drupal_set_message ('Created/Updated the Scopus Article content type.');
+}
+
+/**
+  @brief Implements hook_uninstall ().
+  @details
+    Deletes the Scopus Article nodes, deletes the
+    Scopus Article content type, and removes the
+    Scopus vocabularies.
+*/
+function scopus_uninstall () {
+  module_load_include ('inc', 'scopus');
+
+  scopus_delete_nodes ();
+  drupal_set_message ('Deleted the Scopus Article nodes.');
+
+  node_type_delete (scopus_TYPE);
+  drupal_set_message ('Deleted the Scopus Article content type.');
+
+  scopus_delete_vocabularies ();
+  drupal_set_message ('Deleted the Scopus vocabularies.');
+}

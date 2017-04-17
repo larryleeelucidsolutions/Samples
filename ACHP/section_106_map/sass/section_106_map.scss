@@ -1,0 +1,919 @@
+/* The Section 106 Map Sass library defines the default
+ * styling for the Section 106 Case Map module. */
+
+@import "bourbon/bourbon";
+@import "neat/neat";
+
+$light_blue_color: #0990FE;
+$lighter_blue_color: rgba(111, 190, 254, 100);
+$dark_blue_color: rgb(5, 60, 93);
+$red_color: rgb(151, 0, 14);
+
+$color-grey: #4F4F4F;
+$color-darkgrey: #262626;
+$serif-text: 'minion-pro', serif;
+$background-color-lightblue: #E8F8FF;
+$color-blue-primary: #0990FE;
+
+$feature_height: 800px;
+$feature_small_height: 450px;
+$feature_width: 100%;
+$section_106_map_filter_left: 40px;
+$section_106_map_filter_height: 35px;
+$section_106_map_filter_width: 300px;
+$section_106_map_case_card_margin: 20px;
+
+$section_106_map_share_height: 18px;
+$section_106_map_share_width: 260px;
+$section_106_map_share_padding: 10px;
+
+@mixin after-element-icon-with-hover($icon-path, $icon-hover-path, $right-positioning, $color) {
+  @include hover-transition-content ($color);
+
+  &:after {
+    @include center-y;
+    background-image: url($icon-path);
+    background-position: center;
+    background-repeat: no-repeat;
+    content: "";
+    cursor: pointer;
+    height: 20px;
+    padding-left: 15px;
+    right: $right-positioning;
+    width: 20px;
+    transition: background-image 0.25s;
+  }
+  &:hover:after {
+    background-image: url($icon-hover-path);    
+  }
+}
+@mixin hover-transition-content($color) {
+  transition: color 0.25s;
+
+  &:hover {
+    color: $color;
+  }
+}
+@mixin center-y {
+  position: absolute;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.section_106_map {
+  $feature_header_height: 75px;
+  $feature_header_width: 100%;
+  $feature_header_header_height: 0px;
+  $feature_header_header_width: 100%;
+  $feature_header_body_height: $feature_header_height - $feature_header_header_height;
+  $feature_header_body_width: 100%;
+  $feature_header_body_tabs_height: $feature_header_body_height;
+  $feature_header_body_tabs_width: 300px;
+  $feature_body_height: $feature_height - $feature_header_height;
+  $feature_body_small_height: $feature_small_height - $feature_header_height;
+  $feature_body_width: 100%;
+  $panel_height: $feature_body_height;
+  $panel_padding: 10px;
+  $panel_width: 343px;
+  $panel_small_height: $feature_body_small_height;
+  $grid_header_height: 60px;
+  $grid_footer_height: 60px;
+  $grid_footer_margin: 20px;
+  $grid_body_height: $feature_body_height - $grid_header_height - $grid_footer_height - 2 * $grid_footer_margin;
+  $grid_body_small_height: $feature_body_small_height - $grid_header_height - $grid_footer_height - 2 * $grid_footer_margin;
+
+  text-align: center;
+  width: $feature_width;
+  font-family: 'p22-underground', sans-serif;
+
+  &::after {
+    content: "";
+    display: block;
+    clear: both;
+  }
+  .leaflet-container {
+    .leaflet-control-attribution {
+      display: none;
+    }
+  }
+  .leaflet-top {
+    z-index: 9;
+
+    .leaflet-control {
+      margin-left: $section_106_map_filter_left;
+      margin-top: 65px;
+    }
+  }
+  .section_106_map_feature {
+    // the following section rescales the feature height for small screens.
+    &.section_106_map_feature_small {
+      .section_106_map_feature_body {
+        min-height: $feature_body_small_height;
+
+        .section_106_map_map {
+          height: $feature_body_small_height;
+
+          .section_106_map_map_container {
+            height: $feature_body_small_height;
+          }
+          .section_106_map_map_panel {
+            height: $panel_small_height;
+          }
+        }
+        .section_106_map_grid {
+          min-height: $feature_body_small_height;
+
+          .section_106_map_grid_body {
+            min-height: $grid_body_small_height;
+          }
+        }
+      }
+    }
+    .section_106_map_feature_header {
+      height: $feature_header_height;
+      width: $feature_header_width;
+
+      .section_106_map_feature_header_header {
+        height: $feature_header_header_height;
+        width: $feature_header_header_width;
+      }
+      .section_106_map_feature_header_body {
+        height: $feature_header_body_height;
+        width: $feature_header_body_width;
+
+        .section_106_map_feature_header_body_tabs {
+          text-transform: uppercase;
+          border-top: solid white 1px;
+          height: $feature_header_body_tabs_height;
+          width: $feature_header_body_tabs_width;
+          margin: 0px auto;
+
+          .section_106_map_feature_tab {
+            color: white;
+            cursor: pointer;
+            float: left;
+            height: 100%;
+            padding-top: $feature_header_body_tabs_height / 2;
+            width: $feature_header_body_tabs_width / 2;
+
+            &:hover,
+            &.section_106_map_selected {
+              color: $lighter_blue_color;
+              border-bottom: 5px solid $lighter_blue_color;
+            }
+          }
+          .section_106_map_feature_map_tab {
+            background: url("../images/map-icon.svg") no-repeat 50% 12px;
+            background-size: 15px;
+
+            &:hover,
+            &.section_106_map_selected {
+              background: url("../images/map-icon-blue.svg") no-repeat 50% 12px;
+              background-size: 15px;
+            }
+          }
+          .section_106_map_feature_grid_tab {
+            background: url("../images/grid-icon.svg") no-repeat 50% 17px;
+            background-size: 15px;
+
+            &:hover,
+            &.section_106_map_selected {
+              background: url("../images/grid-icon-blue.svg") no-repeat 50% 17px;
+              background-size: 15px;
+            }
+          }
+        }
+      }
+    }
+    .section_106_map_feature_body {
+      background: $background-color-lightblue;
+      min-height: $feature_body_height;
+      position: relative;
+      width: $feature_body_width;
+
+      .section_106_map_case {
+        padding: 30px 0px 0px 30px;
+        text-align: left;
+
+        &:nth-child(even) {
+          background-color: rgb(246, 246, 246);
+        }
+        .section_106_map_case_item {
+          margin-left: 25px;
+
+          .section_106_map_case_num {
+            left: 18px;
+            position: absolute;
+          }
+          .section_106_map_case_title {
+            a {
+              color: $dark_blue_color;
+              font-size: 1.75rem;
+              text-decoration: none;
+            }
+          }
+          .section_106_map_case_location {
+            color: $red_color;
+            font-size: 1.375rem;
+          }
+          .section_106_map_case_body {
+            color: black;
+            font-size: 1rem;
+
+            a {
+              font-size: 1rem !important; 
+            }
+            .section_106_case_field {
+              font-family: $serif-text;
+            }
+            .section_106_map_case_contact_info > div {
+              display: inline-block;
+              margin-right: 25px;
+            }
+            .section_106_map_case_description {
+              p {
+                margin: 0px;
+                padding: 0px;
+                text-align: left;
+              }
+            }
+            .section_106_map_case_body_agency_header_title,
+            .section_106_map_case_body_contact_header_title {
+              color: $dark_blue_color;
+              margin-top: 10px;
+            }
+            .section_106_map_case_body_agency_header,
+            .section_106_map_case_body_contact_header {
+              margin-top: 10px;
+            }
+            .section_106_map_case_contact_email {
+              font-size: 1rem;
+
+              a {
+                font-size: 1rem !important; 
+              }
+            }
+            .section_106_map_case_contact_title {
+              color: rgb(186, 186, 186);
+              margin-left: 10px;
+              font-family: $serif-text;
+            }
+          }
+        }
+      }
+      .section_106_map_map {
+        height: $feature_body_height;
+        width: 100%;
+
+        .section_106_map_map_container {
+          height: $feature_body_height;
+          width: 100%;
+
+          .leaflet-div-icon {
+            background: none;
+            border: none;
+          }
+          .section_106_map_marker {
+            @include transform(translate(-50%, -100%));
+
+            &.section_106_map_selected,
+            &:hover {
+              #Front-Marker,
+              #Back-Marker {
+                fill: rgba(253, 164, 133, 1);
+              }
+            }
+          }
+          .section_106_map_multiple_cases_marker {
+            .section_106_map_marker_label {
+              fill: #ffffff;
+              font-size: 20px;
+              font-family: "Open Sans";
+              text-anchor: middle;
+            }
+          }
+          .section_106_map_cluster_marker {
+            @include transform(translate(-50%, -50%));
+
+            &:hover {
+              #Oval-35 {
+                fill: rgba(253, 164, 133, 1);
+              }
+            }
+            .section_106_map_cluster_marker_label {
+              fill: #ffffff;
+              font-size: 20px;
+              font-family: "Open Sans";
+              text-anchor: middle;
+            }
+          }
+        }
+        .section_106_map_map_panel {
+          background: white;
+          border-top: $red_color 5px solid;
+          /* note: the following statement creates a drop shadow and masks out the overflow into the following section. */
+          box-shadow: -0px 10px 10px #F4F4F4, -5px 0px 10px rgba(0,0,0,.4);
+          font-size: 16px;
+          height: $panel_height;
+          max-width: $panel_width;
+          overflow-y: scroll;
+          position: absolute;
+          right: 0px;
+          z-index: 10;
+
+          .section_106_map_state_panel {
+            $state_panel_header_height: 50px;
+            $state_panel_header_width: $panel_width - 20px;
+
+            .section_106_map_state_panel_header {
+              height: $state_panel_header_height;
+              padding: 10px 15px 10px 18px;
+
+              $state_panel_header_close_button_width: 25px;
+
+              .section_106_map_state_panel_header_close_button {
+                background: url("../images/close-icon.svg") no-repeat 50% 50%;
+                cursor: pointer;
+                float: right;
+                height: 100%;
+                width: $state_panel_header_close_button_width;
+                -moz-transition: all 0.25s ease;
+                -webkit-transition: all 0.25s ease;
+                -o-transition: all 0.25s ease;
+                transition: all 0.25s ease;
+
+                &:hover {
+                  -moz-transform: rotate(180deg);
+                  -webkit-transform: rotate(180deg);
+                  -o-transform: rotate(180deg);
+                  transform: rotate(180deg);
+                }
+              }
+
+              $state_panel_header_title_width: $state_panel_header_width - 2 * $panel_padding - $state_panel_header_close_button_width;
+
+              .section_106_map_state_panel_header_title {
+                color: $dark_blue_color;
+                float: left;
+                height: 100%;
+                font-size: 1.175rem; // Reduced to prevent "District of Columbia" from overflowing.
+                text-align: left;
+                display: inline-block;
+
+                &:after {
+                  content: "";
+                  height: 1px;
+                  width: 95%;
+                  background-color: $red_color;
+                  display: block;
+                }
+              }
+            }
+            .section_106_map_state_panel_body {
+              .section_106_map_state_panel_state_cases_list {
+                color: $red_color;
+                list-style-type: none;
+                margin: 0px;
+                padding: 0px;
+
+                .section_106_map_case {
+                  padding: 10px 30px 10px 20px;
+
+                  .section_106_map_case_title a, .section_106_map_case_item {
+                    font-size: 1.25rem;
+                  }
+                  .section_106_map_case_location {
+                    display: none;
+                  }
+                  .section_106_map_case_body {
+                    a {
+                      font-size: 1rem !important; 
+                    }
+                  }
+                  .section_106_map_case_body_contact > div {
+                    display: block;
+                    margin-left: 0;
+                  }
+                  .section_106_map_case_contact_email {
+                    font-size: 1rem;
+
+                    a {
+                      font-size: 1rem !important; 
+                    }
+                  }
+                  .section_106_map_case_footer {
+                    margin: 10px 0;
+
+                    /*
+                      Note: the following is a
+                      work-around to allow the anchor
+                      tags nesting SVG icons to respond
+                      to click events. 
+
+                      See: https://teamtreehouse.com/community/how-do-you-make-a-svg-clickable
+                    */
+                    .section_106_map_share_link {
+                      display: inline-block;
+                      position: relative;
+
+                      &:after {
+                        bottom: 0;
+                        content: "";
+                        left: 0;
+                        position: absolute;
+                        right: 0;
+                        top: 0;
+                      }
+                      &:hover {
+                        /* Note: the following statement provides hover transition effects for share icons. */
+                        #grid-header,
+                        #share-bar-desktop,
+                        #map-case-listing,
+                        #original-p22-minionpro {
+                          fill: $light_blue_color;
+                        }
+                      }
+                    }
+                  }
+                  .section_106_map_case_nav {
+                    display: none;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      .section_106_map_grid {
+        min-height: $feature_body_height;
+        width: 100%;
+        @include outer-container;
+        padding: 0 50px;
+
+        .section_106_map_grid_overlay {
+          background: white;
+          border-top: $red_color 5px solid;
+          -moz-box-shadow: (-2px) 0px 18px rgba(0, 0, 0, 0.4);
+          -webkit-box-shadow: (-2px) 0px 18px rgba(0, 0, 0, 0.4);
+          box-shadow: (-2px) 0px 18px rgba(0, 0, 0, 0.4);
+          overflow-x: hidden;
+          overflow-y: auto;
+          position: absolute;
+          width: 0;
+          height: 0;
+          top: 50%;
+          left: 50%;
+          z-index: 15;
+
+          .section_106_map_grid_overlay_close_button {
+            background: url("../images/close-icon.svg") no-repeat 50% 50%;
+            cursor: pointer;
+            float: right;
+            height: 25px;
+            margin: 5px 15px;
+            width: 25px;
+            -moz-transition: all 0.25s ease;
+            -webkit-transition: all 0.25s ease;
+            -o-transition: all 0.25s ease;
+            transition: all 0.25s ease;
+
+            &:hover {
+              -moz-transform: rotate(180deg);
+              -webkit-transform: rotate(180deg);
+              -o-transform: rotate(180deg);
+              transform: rotate(180deg);
+            }
+          }
+          .section_106_map_grid_overlay_body {
+            .section_106_map_case {
+              .section_106_map_case_item {
+                list-style: none;
+                max-width: 800px;
+                margin: 0 auto;
+
+                .section_106_map_case_num {
+                  display: none;
+                }
+              }
+            }
+          }
+        }
+        .section_106_map_grid_header {
+          height: $grid_header_height;
+        }
+        .section_106_map_grid_body {
+          @include span-columns (12 of 12);        
+          min-height: $grid_body_height;
+          
+          .section_106_map_case_card {
+            background: white;
+            border-top: 5px solid $red_color;
+            box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.26);
+            -moz-box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.26);
+            -webkit-box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.26);
+            cursor: pointer;
+            display: inline-block;
+            height: 140px;
+            margin: $section_106_map_case_card_margin $section_106_map_case_card_margin 0 0;
+            padding: 15px;
+            position: relative;
+            text-align: left;
+            transition: box-shadow 0.25s, border-top-color 0.25s;
+            vertical-align: middle;
+
+            .section_106_map_case_card_title, .section_106_map_case_card_state {
+              transition: color 0.25s;
+            }
+
+            &:hover {
+              border-top-color: $light_blue_color;
+              box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.26);
+
+              #grid-search {
+                fill: $light_blue_color;
+              }
+              .section_106_map_case_card_title {
+                color: $light_blue_color;
+              }
+              .section_106_map_case_card_state {
+                color: $light_blue_color;
+              }
+            }
+            .section_106_map_case_card_expand_button {
+              background-size: 20px;
+              cursor: pointer;
+              float: right;
+              height: 30px;
+              width: 30px;
+            }
+            .section_106_map_case_card_title {
+              color: $dark_blue_color;
+              font-size: 1.125rem;
+            }
+            .section_106_map_case_card_state {
+              color: $red_color;
+              position: absolute;
+              bottom: 15px;
+            }
+          }
+        }
+        .section_106_map_grid_footer {
+          float: left;
+          height: $grid_footer_height;
+          margin: $grid_footer_margin 0px;
+          width: 100%;
+
+          .section_106_map_grid_nav {
+            height: 100%;
+            clear: both;
+
+            .section_106_map_grid_nav_links {
+              display: inline-block;
+              height: 100%;
+
+              .section_106_map_grid_nav_link {
+                color: $color-darkgrey;
+                cursor: pointer;
+                display: inline-block;
+                height: $grid_footer_height / 2;
+                line-height: $grid_footer_height / 2;
+                vertical-align: middle;
+                width: $grid_footer_height / 2;
+
+                &.section_106_map_selected {
+                  background-color: $light_blue_color;
+                  border-radius: 50%;
+                  color: white;
+                }
+              }
+              .section_106_map_grid_nav_quick_link_start:after {
+                content: "...";
+              }
+              .section_106_map_grid_nav_quick_link_end:before {
+                content: "...";
+              }
+              .section_106_map_grid_nav_prev {
+                background: url("../images/left-arrow-icon.svg") no-repeat 50% 50%;
+                background-size: 11px;
+
+                &.section_106_map_disabled {
+                  background: url("../images/left-arrow-icon-disabled.svg") no-repeat 50% 50%;
+                  background-size: 11px;
+                }
+              }
+              .section_106_map_grid_nav_next {
+                background: url("../images/right-arrow-icon.svg") no-repeat 50% 50%;
+                background-size: 10px;
+
+                &.section_106_map_disabled {
+                  background: url("../images/right-arrow-icon-disabled.svg") no-repeat 50% 50%;
+                  background-size: 10px;
+                }
+              }
+              .section_106_map_grid_nav_stats {
+                height: 100%;
+                min-width: 215px;
+                text-align: right;
+                line-height: $grid_footer_height / 2;
+                color: $color-grey;
+                display: inline-block;
+              }
+            }
+          }
+        }
+      }
+
+      .section_106_map_filter {
+        background-color: white;
+        -moz-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.4);
+        -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.4);
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.4);
+        height: $section_106_map_filter_height;
+        left: $section_106_map_filter_left;
+        position: absolute;
+        top: 20px;
+        width: $section_106_map_filter_width;
+        z-index: 10;
+
+        .section_106_map_filter_form {
+          .section_106_map_filter_icon {
+            background: url("../images/filter-icon.png") no-repeat 10px 50%;
+            float: left;
+            height: $section_106_map_filter_height;
+            width: $section_106_map_filter_height;
+          }
+          .section_106_map_filter_input {
+            border: none;
+            float: left;
+            height: $section_106_map_filter_height;
+            margin: 0px;
+            overflow: hidden;
+            padding: 0px 10px 0px 10px;
+            width: $section_106_map_filter_width - 2 * $section_106_map_filter_height;
+
+            &:focus {
+              outline: none;
+            }
+            &::-ms-clear {
+              display: none;
+            }
+          }
+          .section_106_map_filter_clear {
+            background: url("../images/close-icon.svg") no-repeat 50% 50%;
+            cursor: pointer;
+            display: table-cell;
+            height: $section_106_map_filter_height;
+            float: left;
+            width: $section_106_map_filter_height;
+          }
+        }
+      }
+    }
+
+    .section_106_map_case_footer {
+      border-top: solid 1px grey;
+      border-bottom: solid 1px gray; 
+      margin: 20px 0;
+      font-size: 1rem;   
+
+      .section_106_map_share {
+        height: $section_106_map_share_height + 2 * $section_106_map_share_padding;
+        padding: $section_106_map_share_padding 0px;
+        width: $section_106_map_share_width;
+        margin: 0 auto;
+
+        .section_106_map_share_label {
+          float: left;
+          height: $section_106_map_share_height;
+          line-height: $section_106_map_share_height + 2px;
+          color: $red-color;
+        }
+        .section_106_map_share_button {
+          cursor: pointer;
+          float: left;
+          height: $section_106_map_share_height;
+          line-height: $section_106_map_share_height;
+          margin-left: 30px;
+          width: 18px;
+
+          a .section_106_map_share_icon {
+            height: $section_106_map_share_height;
+            border: none;
+          }
+          .section_106_map_share_link_icon {
+            margin-top: 3px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.section_106_map_grid_overlay_nav {
+  font-size: 0.875rem;
+  width: $section_106_map_share_width;
+  margin: 0 auto;
+  color: $color-grey;
+  font-weight: 500;
+  height: 20px;
+  margin-bottom: 20px;
+
+  .section_106_map_grid_overlay_nav_prev {
+    position: relative;
+    float: left;
+    cursor: pointer;
+    @include hover-transition-content($color-blue-primary);
+
+    &:before {
+      background-image: url('../images/left-arrow-large-dark.svg');
+      background-position: center;
+      background-repeat: no-repeat;
+      content: "";
+      cursor: pointer;
+      height: 20px;
+      padding-left: 15px;
+      position: relative;
+      right: 5px;
+      top: -1px;
+      transition: background-image 0.25s;
+      width: 20px;
+    }
+    &:hover:before {
+      background-image: url('../images/left-arrow-large-blue.svg');    
+    }
+  }
+
+  .section_106_map_grid_overlay_nav_next {
+    position: relative;
+    float: right;
+    cursor: pointer;
+    @include hover-transition-content($color-blue-primary);
+
+    &:after {
+      background-image: url('../images/right-arrow-large-dark.svg');
+      background-position: center;
+      background-repeat: no-repeat;
+      content: "";
+      cursor: pointer;
+      display: inline;
+      height: 20px;
+      padding-left: 15px;
+      position: relative;
+      right: -5px;
+      top: -1px;
+      transition: background-image 0.25s;
+      width: 20px;
+    }
+    &:hover:after {
+      background-image: url('../images/right-arrow-large-blue.svg');    
+    }
+  }    
+  .section_106_map_grid_overlay_nav_disabled {
+    color: #9B9B9B;
+
+    &:hover {
+      color: #9B9B9B;
+      cursor: default;
+    }
+    &.section_106_map_grid_overlay_nav_prev:before {
+      background-image: url('../../../../themes/achp/images/left-calendar-arrow.svg');
+      display: inline;
+      cursor: default;
+
+      &:hover {
+       background-image: url('../../../../themes/achp/images/left-calendar-arrow.svg');
+      }
+    }
+    &.section_106_map_grid_overlay_nav_next:after {
+      background-image: url('../../../../themes/achp/images/right-calendar-arrow.svg');
+      cursor: default;
+
+      &:hover {
+       background-image: url('../../../../themes/achp/images/left-calendar-arrow.svg');
+      }
+    }
+  }
+}
+
+@media all and (max-width: 600px) {
+  .section_106_map {
+    .section_106_map_feature {
+      .section_106_map_feature_body {
+         $section_106_map_filter_width: 100%;       
+        .section_106_map_filter {
+          width: $section_106_map_filter_width;
+          .section_106_map_filter_form {
+            .section_106_map_filter_input {
+            }
+          }
+        }
+        .section_106_map_map {
+          .section_106_map_grid {
+            .section_106_map_grid_body {
+              .section_106_map_case_card {
+                margin: $section_106_map_case_card_margin;
+              }
+            }
+          }
+        }
+      }
+    } 
+  }
+}
+
+@media (min-width: 951px) {
+  .section_106_map .section_106_map_feature_body .section_106_map_grid .section_106_map_grid_body {
+
+    .section_106_map_case_card {
+      @include span-columns (4 of 12);
+
+      &:nth-of-type(3n) {
+        @include omega();
+      }
+    }
+  }
+}
+
+@media (max-width: 950px) and (min-width: 651px) {
+  .section_106_map .section_106_map_feature_body .section_106_map_grid .section_106_map_grid_body {
+
+    .section_106_map_case_card {
+      @include span-columns (6 of 12);
+
+      &:nth-of-type(2n) {
+        @include omega ();  
+      }
+    }
+  }
+}
+
+@media (max-width: 650px) {
+  .section_106_map .section_106_map_feature {
+
+    .section_106_map_filter {
+      left: 0;
+
+      .section_106_map_filter_clear {
+        float: right;
+      }
+    }
+    .section_106_map_feature_body .section_106_map_grid {
+      padding: 0;
+
+      .section_106_map_grid_body {
+        $card-height: 80px;
+        $color-red: #950306;
+        border-top: 6px solid $color-red;
+        width: 100%;
+
+        .section_106_map_case_card {
+          @include span-columns (12 of 12);
+          @include omega ();
+          border-top: 1px solid rgba(0, 0, 0, 0.26);
+          box-shadow: none;
+          height: auto;
+          margin: 0;
+          padding: 15px 20px;
+          position: relative;
+          width: 100%;
+          @include after-element-icon-with-hover('../../../../themes/achp/images/right-arrow-icon.svg', '../../../../themes/achp/images/right-arrow-icon-blue.svg', 20px, $color-blue-primary);
+
+          .section_106_map_case_card_expand_button {
+            display: none;
+          }
+          .section_106_map_case_card_state {
+            position: static;
+          }
+          .section_106_map_case_card_title {
+            padding-right: 15px;
+          }
+        }
+      }
+      .section_106_map_grid_overlay .section_106_map_case {
+        padding: 30px 50px 0px 50px;
+      }
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  .section_106_map .section_106_map_feature .section_106_map_feature_body {
+    .section_106_map_map {
+      .section_106_map_map_panel {
+        max-width: 100%;
+
+        .section_106_map_state_panel_header {
+          width: 100%;
+        }
+      }
+    }
+
+    .section_106_map_grid .section_106_map_case .section_106_map_case_nav {
+      width: 200px;
+    }
+  }
+}

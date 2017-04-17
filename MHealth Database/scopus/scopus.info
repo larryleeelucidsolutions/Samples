@@ -1,0 +1,8 @@
+name = Scopus
+description = Provides content types/vocabularies to represent Scopus articles.
+package = Scopus
+core = 7.x
+files[] = scopus.field.inc
+files[] = scopus.inc
+files[] = scopus.install
+files[] = scopus.module

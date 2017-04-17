@@ -1,0 +1,7 @@
+<?php
+/**
+  @file
+  @brief The scopus_import_csv.module file is just
+    a stub. The module defines an API whose
+    functions are defined in scopus_import_csv.inc.
+*/

@@ -1,0 +1,10 @@
+name = MHealth Database Search
+description = "Defines the MHealth DB search interface."
+package = MHealthDB
+core = 7.x
+dependencies[] = entrez
+dependencies[] = mhealthdb
+dependencies[] = pubmed
+files[] = mhealthdb_search.inc
+files[] = mhealthdb_search.module
+stylesheets[all][] = style.css

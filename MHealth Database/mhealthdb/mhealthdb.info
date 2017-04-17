@@ -1,0 +1,12 @@
+name = MHealth Database
+description = "Defines a shared library for the MHealth DB modules."
+package = MHealthDB
+core = 7.x
+dependencies[] = entityreference
+dependencies[] = simple_field
+dependencies[] = pubmed
+dependencies[] = google_scholar
+files[] = mhealthdb.drush.inc
+files[] = mhealthdb.inc
+files[] = mhealthdb.install
+files[] = mhealthdb.module

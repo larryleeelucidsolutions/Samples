@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * This file attaches the Slide Format JS module
+ * to every page.
+ */
+
+/**
+ * Implements hook_preprocess_page ().
+ *
+ * Attaches the Slide Format JS module to
+ * every page.
+ */
+function slide_format_preprocess_page (&$variables) {
+  $variables ['#attached']['library'][] = 'slide_format/slide_format_library';
+}

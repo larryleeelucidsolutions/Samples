@@ -1,0 +1,129 @@
+<?php
+/**
+  @file
+  @brief Defines the MHealth DB search interface.
+*/
+
+/// Implements hook_menu ().
+function mhealthdb_search_menu () {
+  return array (
+    'mhealthdb_search/mesh/autocomplete' => array (
+      'description'     => 'An autocomplete callback for the MeSH field in the advanced search form.',
+      'page callback'   => '_mhealthdb_search_mesh_autocomplete',
+      'access callback' => true,
+      'type'            => MENU_CALLBACK,
+      'file'            => 'mhealthdb_search.inc'
+    )
+  );
+}
+
+/// Implements hook_apachesolr_index_document_build ().
+function mhealthdb_search_apachesolr_index_document_build (ApacheSolrDocument $document, $entity, $entity_type) {
+  if ($entity_type == 'node' && $entity->type == 'pubmed') {
+    $document->content = $entity->pubmed_article_title ['und'][0]['value'] . ' ' . $document->content;
+
+    $date = date_parse ($entity->pubmed_publication_date ['und'][0]['value']);
+    $document->addField ('is_field_document_year', $date ['year']);
+    $document->addField ('is_field_document_id', $entity->entrez_uid ['und'][0]['value']);
+
+    // see apachesolr_date_iso ().
+    $document->addField ('ds_pubmed_publication_date', $entity->pubmed_publication_date ['und'][0]['value'] . 'Z');
+  }
+}
+
+/// Implements hook_apachesolr_prepare_query ().
+function mhealthdb_search_apachesolr_query_prepare ($query) {
+  $query->setAvailableSort ('ds_pubmed_publication_date', array ('title' => t ('Publication Date'), 'default' => 'desc'));
+}
+
+/// Implements hook_apachesolr_query_alter ().
+function mhealthdb_search_apachesolr_query_alter ($query) {
+  $query->addParam ('defType', 'lucene');
+}
+
+/// Implements hook_block_info ().
+function mhealthdb_search_block_info () {
+  return array (
+    'mhealthdb_search_advanced_search' => array (
+      'info' => t ('The advanced search form.')
+  ));
+}
+
+/// Implements hook_block_view ().
+function mhealthdb_search_block_view ($delta = '') {
+  switch ($delta) {
+    case 'mhealthdb_search_advanced_search':
+      return array (
+        'subject' => '', // This title disappears when the reset button is pressed. The title is set in the mhealthdb_search_advanced_search_form.
+        'content' => drupal_get_form ('mhealthdb_search_advanced_search_form')
+      );
+  }
+}
+
+/**
+  @brief Defines the advanced search form.
+  @see Implements hook_form ().
+*/
+function mhealthdb_search_advanced_search_form ($form, &$form_state) {
+  module_load_include ('inc', 'mhealthdb_search');
+
+  $state = _mhealthdb_search_state ();
+  $tag = $state ['tag'];
+
+  if (empty ($state)) {
+    $state = _mhealthdb_search_default_search_state ();
+    _mhealthdb_search_save_state ($state);
+  }
+
+  $form = array (
+    '#prefix' => '<div id="mhealthdb_search_form"><h2>Advanced Search</h2>',
+    '#suffix' => '</div>',
+  );
+
+  $form = _mhealthdb_search_create_fields ($form, 'all', 'All', '_mhealthdb_search_add_all_field');
+  $form = _mhealthdb_search_create_fields ($form, 'mesh', 'MeSH', '_mhealthdb_search_add_mesh_field', 'mhealthdb_search/mesh/autocomplete');
+  $form = _mhealthdb_search_create_fields ($form, 'id', 'PubMed ID', '_mhealthdb_search_add_id_field');
+
+  $form = array_merge ($form, array (
+    'year' => array (
+      '#id'                  => 'year_field',
+      '#title'               => t ('Years'),
+      '#type'                => 'fieldset',
+      "year_from_field_$tag" => _mhealthdb_search_create_text_field ('From', $state ['year']['from'], '', 'from_year'),
+      "year_to_field_$tag"   => _mhealthdb_search_create_text_field ('To',   $state ['year']['to'], '', 'to_year')
+    ),
+    'submit' => array (
+      '#id'     => 'mhealthdb_search_advanced_search_form_submit',
+      '#submit' => array ('mhealthdb_search_advanced_search_form_submit'),
+      '#type'   => 'submit',
+      '#value'  => 'Search'
+    ),
+    'reset' => array (
+      '#ajax'   => array (
+        'callback' => '_mhealthdb_search_reset_form',
+        'wrapper'  => 'mhealthdb_search_form'
+      ),
+      '#id'     => 'mhealthdb_search_advanced_search_form_reset',
+      '#submit' => array ('mhealthdb_search_advanced_search_form_reset'),
+      '#type'   => 'button',
+      '#value'  => 'Reset'
+    )
+  ));
+  return $form;
+}
+
+/**
+  @brief Processes the advanced search form.
+  @see Implements hook_form_submit ().
+*/
+function mhealthdb_search_advanced_search_form_submit ($form, &$form_state) {
+  module_load_include ('inc', 'mhealthdb_search');
+
+  $state = _mhealthdb_search_get_state ($form_state ['values']);
+
+  _mhealthdb_search_save_state ($state);
+
+  $query = _mhealthdb_search_state_to_query (_mhealthdb_search_state ());
+
+  drupal_goto ("search/site/$query");
+}

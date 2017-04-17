@@ -1,0 +1,27 @@
+<?php
+/**
+  @file
+  @brief Defines the install and uninstall hooks.
+*/
+
+
+/**
+  @brief Implements hook_install ().
+  @details
+    Creates the Google Scholar Record content type.
+*/
+function google_scholar_install () {
+  google_scholar_create_record_type ();
+  drupal_set_message ('Created the Google Scholar Record content type.');
+}
+
+/**
+  @brief Implements hook_uninstall ();
+  @details
+    Deletes the Google Scholar Record content type.
+*/
+function google_scholar_uninstall () {
+  module_load_include ('module', 'google_scholar');
+  google_scholar_delete_record_type ();
+  drupal_set_message ('Deleted the Google Scholar Record content type.');
+}

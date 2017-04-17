@@ -1,0 +1,91 @@
+<?php
+
+class HingXTest extends DrupalWebTestCase {
+  public static function getInfo () {
+    return array (
+      'name'        => 'HingX',
+      'group'       => 'HingX',
+      'description' => 'Executes unit tests for the HingX module.'
+    );
+  }
+
+  function setUp () {
+    parent::setUp ();
+    module_load_include ('inc', 'hingx');
+    module_load_include ('module', 'hingx');
+  }
+
+  /* I. test the functions in hingx.inc */
+
+  /**
+    @brief tests _hingx_get.
+    @details the function is valid iff:
+      1. The function returns false on failure.
+      2. The function returns the HTTP Get response on success.
+      3. The function sends the HTTP Get request to the given URL.
+  */
+  function test__hingx_get () {
+    $msg = '[_hingx_get] ';
+
+    $this->assertFalse (_hingx_get ('http://afafeasxffebasbgageasxfas'), $msg . 'Returned false on failure.');
+    $this->assertEqual (strpos (_hingx_get ('http://tools.ietf.org/rfc/rfc1.txt'), 'NETWORK WORKING GROUP'), 0, $msg . 'Executed the HTTP Get request sucessfully.');
+  }
+
+  /**
+    @brief tests hingx_search.
+    @details the function is valid iff:
+      1. The function returns results that include the given terms.
+      2. The results match the results returned by HingX.
+      4. The number of results are equal to or less than $num.
+  */
+  function test_hingx_search () {
+    $msg = '[hingx_search] ';
+
+    $this->assertEqual (hingx_search ('badvoodoo', 5), array (), $msg . 'The function returned no results.');
+    $this->assertEqual (hingx_search ('health', 5), array (181, 297, 1263, 228, 182), $msg . 'The function returned the correct results.');
+  }
+
+  /**
+    @brief tests hingx_retrieve.
+    @details the function is valid iff:
+      1. The function returns the resource that has
+         the given id.
+      2. The function returns null if none of the
+         resources have the given id.
+  */
+  function test_hingx_retrieve () {
+    $msg = '[hingx_retrieve] ';
+
+    $resource = hingx_retrieve (687);
+    $this->assertEqual ($resource->ResourceID, 687, $msg . 'The function returned a resource that has the correct id.');
+
+    $resource = hingx_retrieve (999999999999999999999999999999999);
+    $this->assertNull ($resource, $msg . 'The function returned null for an invalid resource id.');
+  }
+
+  /* II. Test the functions in hingx.module */
+
+  /**
+    @brief tests hingx_search_execute.
+    @details the function is valid iff:
+      1. The results match the results returned by HingX.
+        1.a. The results exlude those resources that
+             do not have a title, location, or
+             description.
+      2. The results array is a valid search results array.
+      3. The results include the resource title and location.
+  */
+  function test_hingx_search_execute () {
+    $msg = '[hingx_search_execute] ';
+
+    $results = hingx_search_execute ('health');
+    $this->assertEqual ($results [0]['title'], 'Oral Health IT Toolbox', $msg . 'The first result has the correct title.');
+    $this->assertEqual ($results [1]['link'], 'http://jamia.bmj.com/content/13/3/302.full.pdf+html', $msg . 'The second result has the correct link.');
+    foreach ($results as $result) {
+      $this->assertTrue (array_key_exists ('link', $result));
+      $this->assertTrue (array_key_exists ('snippet', $result));
+      $this->assertTrue (array_key_exists ('title', $result));
+      $this->assertTrue (array_key_exists ('type', $result));
+    }
+  }
+}

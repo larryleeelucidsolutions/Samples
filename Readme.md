@@ -46,7 +46,7 @@ Highlights
 Gist
 ----
 
-https://github.com/larryleeelucidsolutions/Gist
+https://github.com/llee454/Gist
 
 Gist is a personal project that I created to parse RSS newsfeed summaries to produce semantic summaries in RDF. Written in Curry, the program uses context free grammars to parse short texts.
 
@@ -57,7 +57,7 @@ Highlights:
 Kakuro
 ------
 
-https://github.com/larryleeelucidsolutions/Kakuro
+https://github.com/llee454/Kakuro
 
 Kakuro is another personal project that I created. This project was created to solve Kakuro puzzles. The program is written in an imperative programming language (D version 1).
 
